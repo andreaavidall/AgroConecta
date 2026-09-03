@@ -1,228 +1,259 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  AlertCircle, 
-  CheckCircle2, 
-  TrendingUp, 
-  Clock, 
-  DollarSign, 
+  Building2, 
+  PlusCircle, 
   Layers, 
+  Scale, 
+  ShoppingBag, 
+  AlertTriangle, 
+  ArrowRight, 
+  CheckCircle2, 
+  MessageSquareCode, 
+  CloudSun, 
+  FileSpreadsheet, 
   ShieldCheck, 
-  UserCheck, 
-  ArrowRight,
+  Sparkles,
   TrendingDown,
-  CloudRain,
-  MessageSquare,
-  FileCheck2,
-  Sparkles
+  ChevronRight
 } from 'lucide-react';
 import CommitmentCurveChart from '../components/CommitmentCurveChart';
 
-export default function CoopPanelDashboard({ 
-  cooperative, 
-  alerts = [], 
-  offers = [], 
-  commitmentCurveData = [],
+export default function CoopPanelDashboard({
+  cooperative,
+  alerts,
+  offers,
+  commitmentCurveData,
   onOpenTelegram,
   onOpenLotManagement,
   onOpenOffersView,
   onOpenWeatherView,
-  onAcceptOffer,
-  onCounterOffer
+  onOpenExcelImport,
+  onAcceptOffer
 }) {
-  if (!cooperative) return null;
+  const coopName = cooperative?.name || "Cooperativa Valle Verde";
+
+  // Desglose de Stock Físico (ATP / CTP)
+  const stockAptoTons = (cooperative?.stockAptoKg || 5000) / 1000;
+  const acopioProyectadoTons = (cooperative?.acopioProyectadoKg || 15000) / 1000;
+  const deviationTons = (cooperative?.deviationKg || -4900) / 1000;
+
+  // 6 Tareas Frecuentes del Día según Rol Operativo (Sección 21.1)
+  const dailyTasks = [
+    {
+      id: 'task-acopio',
+      title: 'Registrar una Entrega / Acopio',
+      subtitle: 'Ingresa peso bruto, tara y calidad del grano recién llegado.',
+      icon: PlusCircle,
+      badge: 'Acopiador',
+      actionLabel: 'Abrir Bot Telegram o Formulario',
+      onClick: onOpenTelegram,
+      color: 'bg-emerald-50 border-emerald-200 text-[#174C3C]'
+    },
+    {
+      id: 'task-inventario',
+      title: 'Consultar Inventario & Stock Apto',
+      subtitle: `${stockAptoTons} t de grano seco listo para despacho inmediato (ATP).`,
+      icon: Scale,
+      badge: 'Almacenero',
+      actionLabel: 'Ver Kardex & Movimientos',
+      onClick: onOpenLotManagement,
+      color: 'bg-amber-50 border-amber-200 text-amber-900'
+    },
+    {
+      id: 'task-[#174C3C]tes',
+      title: 'Crear o Continuar Lote de Proceso',
+      subtitle: 'Monitorea fermentación (cajones) y secado (marquesinas).',
+      icon: Layers,
+      badge: 'Jefe de Planta',
+      actionLabel: 'Gestión de Lotes',
+      onClick: onOpenLotManagement,
+      color: 'bg-sky-50 border-sky-200 text-sky-900'
+    },
+    {
+      id: 'task-evaluar-pedido',
+      title: 'Evaluar Pedido & Capacidad ATP/CTP',
+      subtitle: `${offers.length} cotizaciones pendientes de evaluación de brecha.`,
+      icon: ShoppingBag,
+      badge: 'Gerente Comercial',
+      actionLabel: 'Revisar Pedidos Pendientes',
+      onClick: onOpenOffersView,
+      color: 'bg-indigo-50 border-indigo-200 text-indigo-900'
+    },
+    {
+      id: 'task-alertas',
+      title: 'Resolver Alertas Pendientes',
+      subtitle: `${alerts.length} avisos operativos y meteorológicos activos.`,
+      icon: AlertTriangle,
+      badge: 'Operaciones',
+      actionLabel: 'Ver Alertas Climáticas SENAMHI',
+      onClick: onOpenWeatherView,
+      color: 'bg-rose-50 border-rose-200 text-rose-900'
+    },
+    {
+      id: 'task-excel',
+      title: 'Importación Masiva Excel',
+      subtitle: 'Carga lista de socios, parcelas y stock inicial.',
+      icon: FileSpreadsheet,
+      badge: 'Administración',
+      actionLabel: 'Importar Archivo Excel',
+      onClick: onOpenExcelImport,
+      color: 'bg-emerald-50 border-emerald-200 text-emerald-900'
+    }
+  ];
 
   return (
     <div className="space-y-6 pb-12">
       
-      {/* 5.1 HEADER DEL PANEL EJECUTIVO */}
-      <div className="bg-[#1E1512] text-white p-6 rounded-2xl border border-[#3D2D27] shadow-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="bg-[#D96B27] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                PANEL INTERNO DE ADMINISTRACIÓN
-              </span>
-              <span className="text-xs text-amber-200/70">{cooperative.region}</span>
-            </div>
-            <h1 className="text-2xl font-black text-white mt-1">{cooperative.name} — Campaña 2026</h1>
+      {/* Top Welcome Banner */}
+      <div className="bg-[#174C3C] text-white p-6 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-emerald-900/40 relative overflow-hidden">
+        <div className="space-y-1 relative z-10">
+          <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+            <Building2 className="w-4 h-4 text-amber-300" />
+            <span>Panel de Gestión Operativa & Cumplimiento</span>
           </div>
+          <h1 className="text-2xl font-black">{coopName}</h1>
+          <p className="text-xs text-emerald-200 max-w-xl leading-relaxed">
+            Monitorea el avance de la campaña, la curva de acopio determinística y responde pedidos con capacidad verificable (ATP / CTP).
+          </p>
+        </div>
 
+        <div className="flex items-center gap-3 relative z-10">
           <button
             onClick={onOpenTelegram}
-            className="bg-[#0088cc] hover:bg-[#0077b5] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 transition-all cursor-pointer shadow-md self-start md:self-auto"
+            className="bg-[#237A57] hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-md border border-emerald-500/30"
           >
-            <MessageSquare className="w-4 h-4" />
-            <span>Abrir Captura en Telegram</span>
+            <MessageSquareCode className="w-4 h-4 text-sky-300" />
+            <span>Simulador Telegram Campo</span>
           </button>
         </div>
 
-        {/* Executive Metric Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-6 mt-4 border-t border-[#3D2D27] text-xs">
-          <div>
-            <span className="text-[10px] text-amber-200/60 uppercase block font-semibold">Acopio Actual</span>
-            <span className="text-xl font-black text-amber-400">17.1 t</span>
-            <span className="text-[10px] text-emerald-400 block">+1.2t esta semana</span>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-amber-200/60 uppercase block font-semibold">Capacidad Proyectada</span>
-            <span className="text-xl font-black text-white">{cooperative.capacityRange}</span>
-            <span className="text-[10px] text-amber-300 block">Confianza: {cooperative.confidenceScore}%</span>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-amber-200/60 uppercase block font-semibold">Avance Campaña</span>
-            <span className="text-xl font-black text-white">82%</span>
-            <span className="text-[10px] text-gray-400 block">Meta 24 t</span>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-amber-200/60 uppercase block font-semibold">Días al Embarque</span>
-            <span className="text-xl font-black text-white">{cooperative.shippingDaysLeft} días</span>
-            <span className="text-[10px] text-gray-400 block">Fecha: 15-Oct</span>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-amber-200/60 uppercase block font-semibold">Confianza de Entrega</span>
-            <span className="text-xl font-black text-emerald-400">{cooperative.confidenceScore}%</span>
-            <span className="text-[10px] text-emerald-300 block">Alta Reputación</span>
-          </div>
-        </div>
+        {/* Decorative background glow */}
+        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
       </div>
 
-      {/* 5.2 REQUIERE TU ATENCIÓN (ALERTAS PRIORIZADAS) */}
+      {/* Main Task Grid: "¿Qué necesitas hacer hoy?" (Sección 21.1) */}
       <div className="space-y-3">
-        <div className="flex items-center space-x-2">
-          <AlertCircle className="w-5 h-5 text-rose-500" />
-          <h2 className="text-base font-extrabold text-[#1E1512]">REQUIERE TU ATENCIÓN INMEDIATA</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {alerts.map((alt) => (
-            <div 
-              key={alt.id}
-              className={`p-4 rounded-2xl border space-y-3 shadow-sm ${
-                alt.level === 'URGENTE'
-                  ? 'bg-rose-50 border-rose-200 text-rose-950'
-                  : 'bg-amber-50 border-amber-200 text-amber-950'
-              }`}
-            >
-              <div className="flex items-center justify-between text-xs">
-                <span className={`font-extrabold text-[10px] px-2 py-0.5 rounded ${
-                  alt.level === 'URGENTE' ? 'bg-rose-600 text-white' : 'bg-amber-500 text-slate-950'
-                }`}>
-                  {alt.level}
-                </span>
-                <span className="text-[10px] text-gray-500 font-semibold">{alt.zone}</span>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-xs">{alt.title}</h4>
-                <p className="text-[11px] opacity-90 mt-1">{alt.message}</p>
-              </div>
-
-              <div className="pt-2 border-t border-black/10 flex items-center justify-between gap-2">
-                <button
-                  onClick={onOpenWeatherView}
-                  className="bg-black/10 hover:bg-black/20 px-3 py-1 rounded-lg font-bold text-[10px] cursor-pointer"
-                >
-                  Ver Causa Climática
-                </button>
-                <button
-                  onClick={onOpenOffersView}
-                  className="bg-[#D96B27] text-white px-3 py-1 rounded-lg font-bold text-[10px] cursor-pointer"
-                >
-                  Buscar Cobertura
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 5.3 EXECUTIVE KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <KpiTile title="Lotes Activos" val="4 Lotes" sub="3 en fermentación/secado" />
-        <KpiTile title="Lotes en Riesgo" val="1 Lote" sub="Fermentación 114h (CAC-015)" color="text-amber-600" />
-        <KpiTile title="% Geolocalizados" val="91% GPS" sub="189 parcelas de socios" color="text-emerald-700" />
-        <KpiTile title="Valor Ofertas Activas" val="US$ 635,000" sub="2 compradores en negociación" color="text-[#D96B27]" />
-      </div>
-
-      {/* Curva del Compromiso Chart */}
-      <CommitmentCurveChart data={commitmentCurveData} minCapacity={cooperative.minCapacity} maxCapacity={cooperative.maxCapacity} />
-
-      {/* 5.5 OFERTAS RECIBIDAS DE COMPRADORES */}
-      <div className="bg-white rounded-2xl p-6 border border-[#EFECE6] shadow-sm space-y-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-extrabold text-[#1E1512]">Ofertas Comerciales Recibidas</h3>
-            <p className="text-xs text-gray-500">Analiza el precio ofrecido vs. la referencia de mercado y disponibilidad de capacidad.</p>
+          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-[#237A57]" />
+            ¿Qué necesitas hacer hoy?
+          </h2>
+          <span className="text-xs text-slate-500 font-medium">Selecciona tu tarea según tu rol activo</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {dailyTasks.map((task) => {
+            const Icon = task.icon;
+            return (
+              <div
+                key={task.id}
+                onClick={task.onClick}
+                className={`p-4 rounded-2xl border shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between space-y-3 group ${task.color}`}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/80 border border-slate-200">
+                      {task.badge}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900 group-hover:text-[#174C3C] transition-colors">
+                      {task.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                      {task.subtitle}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-900/10 flex items-center justify-between text-xs font-bold text-slate-800 group-hover:translate-x-0.5 transition-transform">
+                  <span>{task.actionLabel}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Analytics & Early Warning Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left 2 Cols: Commitment Curve Chart */}
+        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h3 className="font-bold text-slate-800 text-base">Curva de Acopio Campaña 2026</h3>
+              <p className="text-xs text-slate-500">Comparación entre acopio proyectado determinístico y entregas reales</p>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="flex items-center gap-1 text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                <TrendingDown className="w-3.5 h-3.5" />
+                Desviación actual: {deviationTons} t
+              </span>
+            </div>
+          </div>
+
+          {/* Commitment Curve Chart Component */}
+          <div className="h-64">
+            <CommitmentCurveChart data={commitmentCurveData} />
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-900 flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              <strong>Motivo de Desviación:</strong> La Estación SENAMHI Tocache reportó 68mm de lluvia acumulada en 72h (Zona 5 Uchiza), retrasando temporalmente el secado solar en marquesinas y ajustando la capacidad CTP de la Semana 5.
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {offers.map((off) => (
-            <div key={off.id} className="bg-[#FBF9F5] p-5 rounded-2xl border border-[#EFECE6] space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] text-gray-500 font-bold uppercase block">{off.country}</span>
-                  <h4 className="font-extrabold text-sm text-[#1E1512]">{off.buyerCompany}</h4>
-                </div>
-                <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">
-                  Expira en {off.expirationHoursLeft}h
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-gray-200 text-xs">
-                <div>
-                  <span className="text-[10px] text-gray-400 block">Volumen</span>
-                  <span className="font-bold text-gray-900">{off.volumeTons} toneladas</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-gray-400 block">Precio por kg</span>
-                  <span className="font-extrabold text-emerald-700">US$ {off.pricePerKgUsd}/kg</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-gray-400 block">Valor Total Est.</span>
-                  <span className="font-bold text-gray-900">US$ {off.totalValueUsd.toLocaleString()}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-gray-400 block">vs Referencia NY</span>
-                  <span className="font-bold text-emerald-700">{off.priceVsMarketPct}%</span>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-gray-600 font-medium">{off.coverageStatus}</p>
-
-              <div className="pt-2 flex items-center space-x-2">
-                <button
-                  onClick={() => onAcceptOffer(off)}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                >
-                  Aceptar Oferta
-                </button>
-                <button
-                  onClick={() => onCounterOffer(off)}
-                  className="flex-1 bg-[#D96B27] hover:bg-[#C05A19] text-white py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                >
-                  Contraofertar
-                </button>
-              </div>
+        {/* Right Col: Actionable Early Warning Alerts (Sección 29.1 P0-6) */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                Alertas Operativas Activas
+              </h3>
+              <span className="bg-rose-100 text-rose-800 text-[10px] font-black px-2 py-0.5 rounded-full">
+                {alerts.length} Alertas
+              </span>
             </div>
-          ))}
+
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+              {alerts.map((alt) => (
+                <div key={alt.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                  <div className="flex items-center justify-between font-bold text-slate-800">
+                    <span className="text-amber-700">{alt.title}</span>
+                    <span className="text-[10px] font-mono text-slate-400">{alt.zone}</span>
+                  </div>
+                  <p className="text-slate-600 text-[11px] leading-relaxed">{alt.message}</p>
+                  
+                  {/* Actionable Button tailored to alert type */}
+                  <button
+                    onClick={onOpenWeatherView}
+                    className="w-full mt-1 bg-white hover:bg-slate-100 text-slate-800 p-2 rounded-lg font-bold border border-slate-300 flex items-center justify-between transition shadow-2xs"
+                  >
+                    <span>{alt.actionLabel || "Ver Detalle & Solución"}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#237A57]" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+            Alertas respaldadas por telemetría SENAMHI y bitácoras de planta.
+          </div>
         </div>
+
       </div>
 
-    </div>
-  );
-}
-
-function KpiTile({ title, val, sub, color = "text-gray-900" }) {
-  return (
-    <div className="bg-white p-4 rounded-2xl border border-[#EFECE6] shadow-sm space-y-1">
-      <span className="text-gray-500 text-[11px] font-semibold block">{title}</span>
-      <div className={`text-lg font-black ${color}`}>{val}</div>
-      <p className="text-[10px] text-gray-400 font-medium">{sub}</p>
     </div>
   );
 }

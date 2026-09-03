@@ -1,77 +1,160 @@
 import React, { useState } from 'react';
-import { TrendingUp, Bell, CheckCircle2, DollarSign, Calendar, MessageSquare } from 'lucide-react';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { TrendingUp, Scale, Info, DollarSign, RefreshCcw, ShieldCheck, ExternalLink } from 'lucide-react';
 import { ICE_NY_COCOA_MARKET } from '../data/mockData';
 
-export default function MarketPricesView({ onOpenTelegram }) {
-  const [alertEnabled, setAlertEnabled] = useState(true);
+export default function MarketPricesView() {
+  const [exchangeRate, setExchangeRate] = useState(3.75); // PEN / USD
+  const [organicPremium, setOrganicPremium] = useState(0.50); // USD / kg
+  const [ftPremium, setFtPremium] = useState(0.20); // USD / kg
+  const [processingCost, setProcessingCost] = useState(0.35); // USD / kg
+  const [logisticsCost, setLogisticsCost] = useState(0.25); // USD / kg
+
+  const nyBaseUsdKg = ICE_NY_COCOA_MARKET.currentPriceUsdKg; // 8.42 USD / kg
+
+  // Cálculo del Precio Comercial Estimado y Margen Productor (Sección 15)
+  const estimatedFobUsdKg = nyBaseUsdKg + organicPremium + ftPremium - processingCost - logisticsCost;
+  const estimatedFobPenKg = estimatedFobUsdKg * exchangeRate;
+  const estimatedFobUsdTon = estimatedFobUsdKg * 1000;
 
   return (
     <div className="space-y-6 pb-12">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-[#174C3C] text-white p-6 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-emerald-900/40">
         <div>
-          <div className="flex items-center space-x-2">
-            <span className="bg-[#D96B27]/10 text-[#D96B27] text-[10px] font-bold px-2 py-0.5 rounded border border-[#D96B27]/30">
-              MERCADO INTERNACIONAL DE COMMODITIES (DEMOSTRATIVO)
-            </span>
+          <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+            <TrendingUp className="w-4 h-4 text-amber-300" />
+            <span>Mercado Internacional & Precios Referenciales</span>
           </div>
-          <h1 className="text-xl font-black text-[#1E1512] mt-1">Precios del Cacao — ICE Futures New York</h1>
-          <p className="text-xs text-gray-500">Referencia diaria para la negociación de contratos B2B entre cooperativas y compradores.</p>
-        </div>
-
-        <button
-          onClick={() => setAlertEnabled(!alertEnabled)}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-2 transition-all cursor-pointer ${
-            alertEnabled ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-700'
-          }`}
-        >
-          <Bell className="w-4 h-4" />
-          <span>{alertEnabled ? 'Alertas Telegram Activas' : 'Activar Alertas Telegram'}</span>
-        </button>
-      </div>
-
-      {/* Main Price Card & Metric */}
-      <div className="bg-[#1E1512] text-white p-6 rounded-2xl border border-[#3D2D27] shadow-xl grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-        
-        <div>
-          <span className="text-[10px] text-amber-200/60 font-bold uppercase block">Cotización Actual ICE NY</span>
-          <div className="text-4xl font-black text-amber-400 mt-1">US$ {ICE_NY_COCOA_MARKET.currentPriceUsdKg} <span className="text-xs text-gray-400 font-normal">/ kg</span></div>
-          <span className="text-xs font-bold text-emerald-400 block mt-1">
-            US$ {ICE_NY_COCOA_MARKET.pricePerTonUsd.toLocaleString()} / tonelada
-          </span>
-        </div>
-
-        <div>
-          <span className="text-[10px] text-amber-200/60 font-bold uppercase block">Variación 7 Días</span>
-          <div className="text-2xl font-bold text-emerald-400 mt-1">+{ICE_NY_COCOA_MARKET.change7dPct}%</div>
-          <span className="text-[11px] text-gray-400 block">Tendencia Alcista en Mercado Futuro</span>
-        </div>
-
-        <div className="bg-[#2A1E1A] p-4 rounded-xl border border-[#4A3831] space-y-2 text-xs">
-          <span className="font-bold text-amber-300 block">Recomendación para Ofertas:</span>
-          <p className="text-amber-200/80 text-[11px]">
-            Movimiento significativo en el mercado global. Es un momento propicio para revisar ofertas pendientes o cerrar contratos a precio fijo.
+          <h1 className="text-2xl font-black">Cotizaciones ICE Futures NY & Simulador de Margen</h1>
+          <p className="text-xs text-emerald-200 mt-1 max-w-xl">
+            Calcula el precio comercial estimado al productor partiendo de la referencia internacional y deduciendo primas y costos reales de exportación.
           </p>
         </div>
 
+        <div className="bg-emerald-950/70 p-3.5 rounded-xl border border-emerald-700/50 text-right">
+          <span className="text-emerald-300 text-xs block font-mono uppercase">
+            {ICE_NY_COCOA_MARKET.dataFreshnessTag}
+          </span>
+          <span className="text-2xl font-black text-amber-300">US$ {nyBaseUsdKg.toFixed(2)} / kg</span>
+          <span className="text-[10px] text-emerald-400 block font-mono">{ICE_NY_COCOA_MARKET.sourceLabel}</span>
+        </div>
       </div>
 
-      {/* 30-Day Historical Trend Chart */}
-      <div className="bg-white p-6 rounded-2xl border border-[#EFECE6] shadow-sm space-y-4">
-        <h3 className="font-bold text-gray-900 text-xs uppercase tracking-wider">Tendencia de Cotizaciones (Últimos 30 Días)</h3>
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={ICE_NY_COCOA_MARKET.historical30d} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" stroke="#888" fontSize={11} />
-              <YAxis stroke="#888" fontSize={11} domain={[6.5, 9.0]} unit=" $" />
-              <Tooltip formatter={(v) => [`$${v} / kg`, 'Precio NY']} />
-              <Line type="monotone" dataKey="price" stroke="#D96B27" strokeWidth={3} dot={{ r: 5, fill: '#D96B27' }} />
-            </LineChart>
-          </ResponsiveContainer>
+      {/* Pricing Formula Explanation */}
+      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+        <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+          <Info className="w-4 h-4 text-[#237A57]" />
+          Fórmula del Precio Comercial Estimado (Sección 15)
+        </h3>
+
+        <div className="bg-[#F6F8F5] p-4 rounded-xl border border-slate-200 font-mono text-xs text-slate-800 space-y-1">
+          <p className="font-bold text-[#174C3C]">
+            precio_comercial_estimado = precio_internacional + primas - costos_procesamiento - costos_logística
+          </p>
+          <p className="text-slate-500 text-[11px]">
+            * AgroConecta no utiliza el precio de bolsa bruto como precio directo al productor; calcula la deducibilidad logística.
+          </p>
         </div>
+      </div>
+
+      {/* Pricing Simulator Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Left: Interactive Variables Input */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2">
+            Simulador de Primas & Costos Operativos
+          </h3>
+
+          <div className="space-y-3 text-xs">
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Tipo de Cambio (PEN / USD)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={exchangeRate}
+                onChange={(e) => setExchangeRate(Number(e.target.value))}
+                className="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-slate-800"
+              />
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Prima Certificado Orgánico (USD / kg)</label>
+              <input
+                type="number"
+                step="0.05"
+                value={organicPremium}
+                onChange={(e) => setOrganicPremium(Number(e.target.value))}
+                className="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-emerald-700"
+              />
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Prima Comercio Justo Fairtrade (USD / kg)</label>
+              <input
+                type="number"
+                step="0.05"
+                value={ftPremium}
+                onChange={(e) => setFtPremium(Number(e.target.value))}
+                className="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-emerald-700"
+              />
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Costos de Procesamiento & Fermentación (USD / kg)</label>
+              <input
+                type="number"
+                step="0.05"
+                value={processingCost}
+                onChange={(e) => setProcessingCost(Number(e.target.value))}
+                className="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-rose-700"
+              />
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 mb-1">Flete & Documentos de Exportación (USD / kg)</label>
+              <input
+                type="number"
+                step="0.05"
+                value={logisticsCost}
+                onChange={(e) => setLogisticsCost(Number(e.target.value))}
+                className="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-rose-700"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Calculated Net Margin Results */}
+        <div className="bg-[#174C3C] text-white p-6 rounded-2xl shadow-xl flex flex-col justify-between space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-base font-bold text-amber-300 border-b border-emerald-800 pb-2">
+              Resultado Comercial Estimado (FOB Callao)
+            </h3>
+
+            <div className="space-y-3">
+              <div className="bg-emerald-950/70 p-3.5 rounded-xl border border-emerald-700/50 flex justify-between items-center">
+                <span className="text-xs text-emerald-200">Precio Sugerido (USD / kg):</span>
+                <span className="text-xl font-black text-amber-300">US$ {estimatedFobUsdKg.toFixed(2)}</span>
+              </div>
+
+              <div className="bg-emerald-950/70 p-3.5 rounded-xl border border-emerald-700/50 flex justify-between items-center">
+                <span className="text-xs text-emerald-200">Precio Sugerido (S/ / kg):</span>
+                <span className="text-xl font-black text-white">S/ {estimatedFobPenKg.toFixed(2)}</span>
+              </div>
+
+              <div className="bg-emerald-950/70 p-3.5 rounded-xl border border-emerald-700/50 flex justify-between items-center">
+                <span className="text-xs text-emerald-200">Valor por Tonelada (FOB):</span>
+                <span className="text-xl font-black text-amber-300">US$ {estimatedFobUsdTon.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-[11px] text-emerald-300 italic border-t border-emerald-800 pt-3">
+            Aviso: Datos de mercado provistos en Modo Demostración Piloto. No constituye asesoría financiera oficial.
+          </div>
+        </div>
+
       </div>
 
     </div>

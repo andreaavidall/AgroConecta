@@ -1,339 +1,208 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { 
   Building2, 
-  Search, 
-  MapPin, 
+  ShoppingBag, 
+  MessageSquareCode, 
+  FileCheck2, 
+  Users, 
+  Layers, 
+  Map, 
+  CloudSun, 
   TrendingUp, 
-  Globe,
-  Bell, 
-  ChevronDown, 
-  UserCheck, 
-  SlidersHorizontal,
-  Menu,
-  X,
-  Check,
-  FileText,
-  Settings,
-  LogOut,
-  Sparkles,
-  Layers,
-  FileCheck2,
-  Scale,
-  History
+  Award, 
+  Scale, 
+  History, 
+  Gamepad2, 
+  Bot, 
+  Sparkles, 
+  Download,
+  Calendar,
+  ChevronDown
 } from 'lucide-react';
 
-export default function Header({ 
-  activeRole, 
-  setActiveRole, 
-  activeTab, 
-  setActiveTab, 
+export default function Header({
+  activeRole,
+  setActiveRole,
+  activeTab,
+  setActiveTab,
+  onOpenTelegram,
   onOpenCommitmentReport,
-  activeOffersCount = 2,
-  alertsCount = 3,
-  selectedCoopName = "Cooperativa Valle Verde",
+  onOpenOnboarding,
+  onOpenExcelImport,
+  isPracticeMode,
+  onTogglePracticeMode,
+  activeOffersCount,
+  alertsCount,
+  selectedCoopName,
   onSelectCoopByName
 }) {
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const profileRef = useRef(null);
-  const notificationsRef = useRef(null);
+  // Opciones de navegación adaptadas por Rol (Sección 21.1)
+  const coopNavTabs = [
+    { id: 'coop-dashboard', label: '¿Qué hacer hoy?', icon: Building2 },
+    { id: 'lots-management', label: 'Lotes & Proceso', icon: Layers },
+    { id: 'coop-offers', label: 'Pedidos & Calculadora ATP/CTP', icon: ShoppingBag, badge: activeOffersCount },
+    { id: 'mass-balance', label: 'Balance de Masa', icon: Scale },
+    { id: 'certificates', label: 'Certificaciones & SENASA', icon: Award },
+    { id: 'senamhi-weather', label: 'Clima SENAMHI & Bolsa ICE', icon: CloudSun }
+  ];
 
-  // Close dropdowns on click outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setIsProfileMenuOpen(false);
-      }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
-        setIsNotificationsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const buyerNavTabs = [
+    { id: 'buyer-dashboard', label: 'Resumen Oferta Verificable', icon: Building2 },
+    { id: 'marketplace', label: 'Vitrina de Orígenes', icon: ShoppingBag },
+    { id: 'interactive-map', label: 'Mapa EUDR (Zonas)', icon: Map },
+    { id: 'buyer-offers', label: 'Mis Pedidos & Cotizaciones', icon: FileCheck2, badge: activeOffersCount },
+    { id: 'market-prices', label: 'Precios de Bolsa ICE NY', icon: TrendingUp }
+  ];
+
+  const currentTabs = activeRole === 'coop' ? coopNavTabs : buyerNavTabs;
 
   return (
-    <header className="sticky top-0 z-40 bg-[#140D0A] text-[#EFECE6] border-b border-[#261914] shadow-xl font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="bg-[#174C3C] text-white border-b border-emerald-950/40 sticky top-0 z-30 shadow-md">
+      
+      {/* Top Utility Bar */}
+      <div className="bg-[#0F3529] px-4 sm:px-8 py-2 text-xs flex flex-wrap items-center justify-between gap-2 border-b border-emerald-900/50">
         
-        {/* Brand Logo (AC AgroConecta) */}
-        <div 
-          onClick={() => setActiveTab(activeRole === 'buyer' ? 'buyer-dashboard' : 'coop-dashboard')}
-          className="flex items-center space-x-2.5 cursor-pointer shrink-0 group"
-        >
-          <div className="w-8 h-8 rounded-lg bg-[#D96B27] flex items-center justify-center font-black text-white shadow-md text-sm transition-transform group-hover:scale-105">
-            AC
+        {/* Active Organization & Campaign Context */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 font-bold text-amber-300">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>AGROCONECTA PERÚ</span>
           </div>
-          <span className="font-bold text-base tracking-tight text-white font-sans">
-            AgroConecta
-          </span>
+
+          <span className="text-emerald-700">|</span>
+
+          {/* Active Coop Badge */}
+          <div className="flex items-center gap-1 bg-emerald-900/80 px-2.5 py-0.5 rounded-full border border-emerald-700/50 text-emerald-200">
+            <Building2 className="w-3 h-3 text-amber-300" />
+            <span className="font-semibold text-[11px]">{selectedCoopName}</span>
+          </div>
+
+          {/* Active Campaign Badge */}
+          <div className="hidden md:flex items-center gap-1 bg-emerald-900/50 px-2 py-0.5 rounded-md text-emerald-300 text-[11px]">
+            <Calendar className="w-3 h-3 text-emerald-400" />
+            <span>Campaña Cacao 2026</span>
+          </div>
         </div>
 
-        {/* Desktop Main Navigation (Adapts to Buyer vs Cooperative Role!) */}
-        <nav className="hidden md:flex items-center space-x-1 font-sans">
-          {activeRole === 'buyer' ? (
-            <>
-              <NavItem 
-                active={activeTab === 'buyer-dashboard'} 
-                onClick={() => setActiveTab('buyer-dashboard')} 
-                label="Dashboard" 
-              />
-              <NavItem 
-                active={activeTab === 'marketplace' || activeTab === 'coop-profile'} 
-                onClick={() => setActiveTab('marketplace')} 
-                label="Vitrina" 
-              />
-              <NavItem 
-                active={activeTab === 'buyer-offers'} 
-                onClick={() => setActiveTab('buyer-offers')} 
-                label="Ofertas" 
-                badge={activeOffersCount}
-              />
-              <NavItem 
-                active={activeTab === 'market' || activeTab === 'market-prices' || activeTab === 'senamhi-weather'} 
-                onClick={() => setActiveTab('market')} 
-                label="Mercado" 
-              />
-              <NavItem 
-                active={activeTab === 'interactive-map'} 
-                onClick={() => setActiveTab('interactive-map')} 
-                label="Mapa" 
-              />
-            </>
-          ) : (
-            <>
-              <NavItem 
-                active={activeTab === 'coop-dashboard' || activeTab === 'commitment-curve'} 
-                onClick={() => setActiveTab('coop-dashboard')} 
-                label="Dashboard" 
-              />
-              <NavItem 
-                active={activeTab === 'lots-management'} 
-                onClick={() => setActiveTab('lots-management')} 
-                label="Lotes" 
-              />
-              <NavItem 
-                active={activeTab === 'coop-offers'} 
-                onClick={() => setActiveTab('coop-offers')} 
-                label="Ofertas Recibidas" 
-                badge={activeOffersCount}
-              />
-              <NavItem 
-                active={activeTab === 'certificates'} 
-                onClick={() => setActiveTab('certificates')} 
-                label="Certificados" 
-              />
-              <NavItem 
-                active={activeTab === 'mass-balance'} 
-                onClick={() => setActiveTab('mass-balance')} 
-                label="Conciliación" 
-              />
-              <NavItem 
-                active={activeTab === 'campaign-history'} 
-                onClick={() => setActiveTab('campaign-history')} 
-                label="Historial" 
-              />
-            </>
-          )}
-        </nav>
-
-        {/* Right Utility: Notifications & User Profile Menu */}
-        <div className="flex items-center space-x-3 shrink-0">
+        {/* Global Action Tools */}
+        <div className="flex items-center gap-2">
           
-          {/* Notifications Bell Button & Dropdown */}
-          <div className="relative" ref={notificationsRef}>
+          {/* Demo Mode Indicator */}
+          <span className="hidden lg:inline-block px-2 py-0.5 bg-emerald-950/60 rounded text-[10px] text-emerald-300 font-mono border border-emerald-800">
+            Modo Demostración (Local Repository)
+          </span>
+
+          {/* Guided Setup Launcher */}
+          {activeRole === 'coop' && (
             <button
-              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="p-2 text-amber-200/70 hover:text-white rounded-lg hover:bg-white/5 transition-colors relative cursor-pointer"
-              title="Notificaciones"
+              onClick={onOpenOnboarding}
+              className="bg-emerald-800/80 hover:bg-emerald-700 text-amber-300 px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition border border-emerald-600/40"
+              title="Configuración Inicial Guiada"
             >
-              <Bell className="w-4 h-4" />
-              {alertsCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#D96B27] ring-2 ring-[#140D0A]"></span>
-              )}
+              <Sparkles className="w-3 h-3" />
+              <span className="hidden sm:inline">Configuración Guiada</span>
             </button>
+          )}
 
-            {/* Notifications Popover */}
-            {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-[#1E1512] text-white rounded-xl shadow-2xl border border-[#3D2D27] py-2 z-50 text-xs animate-in fade-in zoom-in duration-150">
-                <div className="px-4 py-2 border-b border-[#3D2D27] flex justify-between items-center">
-                  <span className="font-bold text-amber-50">Notificaciones en Vivo</span>
-                  <span className="text-[10px] text-[#D96B27] font-semibold">{alertsCount} nuevas</span>
-                </div>
-                <div className="divide-y divide-[#2A1E1A] max-h-64 overflow-y-auto">
-                  <div className="p-3 hover:bg-white/5 transition-colors cursor-pointer space-y-1">
-                    <span className="text-[10px] text-amber-400 font-bold block uppercase">🌧️ SENAMHI Alerta Clima</span>
-                    <p className="text-amber-100/80 leading-tight">Lluvia de 68mm/72h en Uchiza afecta secado temporalmente.</p>
-                  </div>
-                  <div className="p-3 hover:bg-white/5 transition-colors cursor-pointer space-y-1">
-                    <span className="text-[10px] text-emerald-400 font-bold block uppercase">💼 Nueva Oferta Recibida</span>
-                    <p className="text-amber-100/80 leading-tight">Nordic Cocoa envió propuesta por 25 t a US$ 8.10/kg.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* User Profile Dropdown ([MP] ▾ or [VV] ▾) */}
-          <div className="relative" ref={profileRef}>
-            <button
-              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-              className="flex items-center space-x-2 bg-[#211612] hover:bg-[#2C1D18] px-2.5 py-1.5 rounded-xl border border-[#36241C] transition-all cursor-pointer shadow-sm text-xs font-semibold text-white"
-            >
-              <div className="w-6 h-6 rounded-lg bg-[#D96B27]/30 border border-[#D96B27]/50 text-[#F59E0B] flex items-center justify-center font-bold text-[11px]">
-                {activeRole === 'buyer' ? 'MP' : 'VV'}
-              </div>
-              <span className="hidden sm:inline font-medium text-amber-100">
-                {activeRole === 'buyer' ? 'Matías (Comprador)' : 'Cooperativa Admin'}
-              </span>
-              <ChevronDown className="w-3.5 h-3.5 text-amber-200/60" />
-            </button>
-
-            {/* Profile Menu Dropdown */}
-            {isProfileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-[#1E1512] text-white rounded-xl shadow-2xl border border-[#3D2D27] py-2 z-50 text-xs animate-in fade-in zoom-in duration-150 space-y-1">
-                {/* User Info Header */}
-                <div className="px-4 py-2.5 border-b border-[#3D2D27]">
-                  <span className="font-bold text-amber-50 block">
-                    {activeRole === 'buyer' ? 'Matías Pérez' : selectedCoopName}
-                  </span>
-                  <span className="text-[10px] text-amber-200/60 block">
-                    {activeRole === 'buyer' ? 'Comprador Internacional • UE' : 'Administrador de Campaña 2026'}
-                  </span>
-                </div>
-
-                {/* Role Switcher Section */}
-                <div className="px-4 py-2 space-y-1.5">
-                  <span className="text-[10px] text-amber-200/50 uppercase font-bold tracking-wider block">
-                    CAMBIAR VISTA DE USUARIO
-                  </span>
-
-                  {/* Buyer Option */}
-                  <button
-                    onClick={() => {
-                      setActiveRole('buyer');
-                      setActiveTab('buyer-dashboard');
-                      setIsProfileMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                      activeRole === 'buyer' ? 'bg-[#D96B27]/20 text-[#F59E0B] font-bold border border-[#D96B27]/40' : 'text-amber-200/80 hover:bg-white/5'
-                    }`}
-                  >
-                    <div>
-                      <span className="block font-bold">Vista Comprador</span>
-                      <span className="text-[10px] text-gray-400 font-normal">Descubrimiento, due diligence y ofertas</span>
-                    </div>
-                    {activeRole === 'buyer' && <Check className="w-4 h-4 text-[#F59E0B] shrink-0" />}
-                  </button>
-
-                  {/* Cooperative Option */}
-                  <button
-                    onClick={() => {
-                      setActiveRole('coop');
-                      setActiveTab('coop-dashboard');
-                      setIsProfileMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                      activeRole === 'coop' ? 'bg-[#D96B27]/20 text-[#F59E0B] font-bold border border-[#D96B27]/40' : 'text-amber-200/80 hover:bg-white/5'
-                    }`}
-                  >
-                    <div>
-                      <span className="block font-bold">Vista Cooperativa</span>
-                      <span className="text-[10px] text-gray-400 font-normal">Panel interno, lotes y operaciones de acopio</span>
-                    </div>
-                    {activeRole === 'coop' && <Check className="w-4 h-4 text-[#F59E0B] shrink-0" />}
-                  </button>
-                </div>
-
-                {/* Logout / Settings */}
-                <div className="pt-2 border-t border-[#3D2D27] px-4 py-1">
-                  <button className="w-full text-left py-1.5 text-gray-400 hover:text-white flex items-center space-x-2 cursor-pointer">
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Cerrar sesión</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Hamburger Button */}
+          {/* Practice Mode Toggle Button */}
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-amber-200/70 hover:text-white cursor-pointer"
+            onClick={onTogglePracticeMode}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition ${
+              isPracticeMode
+                ? 'bg-amber-500 text-slate-900 shadow-inner'
+                : 'bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50'
+            }`}
+            title="Activar o desactivar entorno seguro de práctica"
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <Gamepad2 className="w-3.5 h-3.5" />
+            <span>{isPracticeMode ? 'Modo Práctica Activo' : 'Activar Modo Práctica'}</span>
           </button>
+
+          {/* Telegram Field Simulator Button */}
+          <button
+            onClick={onOpenTelegram}
+            className="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition shadow-sm"
+          >
+            <MessageSquareCode className="w-3.5 h-3.5" />
+            <span>Bot Telegram Campo</span>
+          </button>
+
+          {/* Role Switcher */}
+          <div className="ml-2 bg-emerald-950 p-0.5 rounded-lg flex items-center border border-emerald-800/60">
+            <button
+              onClick={() => {
+                setActiveRole('coop');
+                setActiveTab('coop-dashboard');
+              }}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
+                activeRole === 'coop'
+                  ? 'bg-[#237A57] text-white shadow-sm'
+                  : 'text-emerald-300 hover:text-white'
+              }`}
+            >
+              Portal Cooperativa
+            </button>
+            <button
+              onClick={() => {
+                setActiveRole('buyer');
+                setActiveTab('buyer-dashboard');
+              }}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
+                activeRole === 'buyer'
+                  ? 'bg-[#237A57] text-white shadow-sm'
+                  : 'text-emerald-300 hover:text-white'
+              }`}
+            >
+              Portal Comprador
+            </button>
+          </div>
 
         </div>
 
       </div>
 
-      {/* Contextual Status Strip for Cooperative Mode */}
-      {activeRole === 'coop' && (
-        <div className="bg-[#1C120E] border-t border-[#2C1C16] px-4 py-1.5 text-xs text-amber-200/80 font-sans">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="bg-[#D96B27] text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">
-                MODO COOPERATIVA
-              </span>
-              <span className="font-bold text-white">{selectedCoopName}</span>
-              <span className="text-gray-400 text-[11px] hidden sm:inline">• Campaña 2026 en curso</span>
-            </div>
+      {/* Main Navigation Bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+        
+        {/* Navigation Tabs */}
+        <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
+          {currentTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                  isActive
+                    ? 'bg-emerald-800 text-amber-300 shadow-inner border border-emerald-600/50'
+                    : 'text-emerald-100 hover:bg-emerald-800/50 hover:text-white'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-amber-300' : 'text-emerald-300'}`} />
+                <span>{tab.label}</span>
+                {tab.badge > 0 && (
+                  <span className="bg-amber-400 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-            <div className="flex items-center space-x-3 text-[11px]">
-              <span>Acopio: <strong className="text-amber-400">17.1 t</strong></span>
-              <span className="hidden sm:inline">Capacidad: <strong className="text-white">22–27 t</strong></span>
-              <span className="text-emerald-400 font-bold">80% Confianza</span>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Commitment Report Quick Trigger */}
+        <button
+          onClick={() => onOpenCommitmentReport(false)}
+          className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-black shadow-md transition transform hover:scale-[1.02]"
+        >
+          <FileCheck2 className="w-4 h-4 text-slate-950" />
+          <span>Calculadora ATP/CTP (20t)</span>
+        </button>
 
-      {/* Mobile Drawer Navigation */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-[#1E1512] border-t border-[#3D2D27] px-4 py-3 space-y-2 text-xs">
-          {activeRole === 'buyer' ? (
-            <>
-              <NavItem active={activeTab === 'buyer-dashboard'} onClick={() => { setActiveTab('buyer-dashboard'); setIsMobileMenuOpen(false); }} label="Dashboard" />
-              <NavItem active={activeTab === 'marketplace'} onClick={() => { setActiveTab('marketplace'); setIsMobileMenuOpen(false); }} label="Vitrina" />
-              <NavItem active={activeTab === 'buyer-offers'} onClick={() => { setActiveTab('buyer-offers'); setIsMobileMenuOpen(false); }} label="Ofertas" badge={activeOffersCount} />
-              <NavItem active={activeTab === 'market'} onClick={() => { setActiveTab('market'); setIsMobileMenuOpen(false); }} label="Mercado" />
-              <NavItem active={activeTab === 'interactive-map'} onClick={() => { setActiveTab('interactive-map'); setIsMobileMenuOpen(false); }} label="Mapa" />
-            </>
-          ) : (
-            <>
-              <NavItem active={activeTab === 'coop-dashboard'} onClick={() => { setActiveTab('coop-dashboard'); setIsMobileMenuOpen(false); }} label="Dashboard" />
-              <NavItem active={activeTab === 'lots-management'} onClick={() => { setActiveTab('lots-management'); setIsMobileMenuOpen(false); }} label="Lotes" />
-              <NavItem active={activeTab === 'coop-offers'} onClick={() => { setActiveTab('coop-offers'); setIsMobileMenuOpen(false); }} label="Ofertas Recibidas" badge={activeOffersCount} />
-              <NavItem active={activeTab === 'certificates'} onClick={() => { setActiveTab('certificates'); setIsMobileMenuOpen(false); }} label="Certificados" />
-              <NavItem active={activeTab === 'mass-balance'} onClick={() => { setActiveTab('mass-balance'); setIsMobileMenuOpen(false); }} label="Conciliación" />
-              <NavItem active={activeTab === 'campaign-history'} onClick={() => { setActiveTab('campaign-history'); setIsMobileMenuOpen(false); }} label="Historial" />
-            </>
-          )}
-        </div>
-      )}
+      </div>
+
     </header>
-  );
-}
-
-function NavItem({ active, onClick, label, badge }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer relative whitespace-nowrap ${
-        active 
-          ? 'text-white bg-[#261813] border-b-2 border-[#D96B27] font-bold'
-          : 'text-amber-200/60 hover:text-white hover:bg-white/5'
-      }`}
-    >
-      <span>{label}</span>
-      {badge > 0 && (
-        <span className="ml-1.5 bg-[#D96B27] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
-          {badge}
-        </span>
-      )}
-    </button>
   );
 }

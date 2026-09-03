@@ -1,313 +1,266 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   X, 
-  Printer, 
-  Download, 
-  Share2, 
-  ShieldCheck, 
   CheckCircle2, 
   AlertTriangle, 
-  Award, 
-  MapPin, 
-  TrendingUp, 
+  Clock, 
+  Scale, 
+  Layers, 
+  CloudSun, 
+  ShieldCheck, 
+  ArrowRight, 
+  FileText, 
   Calendar, 
-  Users, 
-  Sparkles,
-  Layers,
-  FileText,
-  Copy
+  Truck,
+  TrendingUp,
+  Info
 } from 'lucide-react';
 
-export default function CommitmentReportModal({ 
-  isOpen, 
-  onClose, 
-  cooperative, 
-  isCombined = false, 
-  combinedCoops = [], 
-  requestedVolumeTons = 50 
+export default function CommitmentReportModal({
+  isOpen,
+  onClose,
+  cooperative,
+  isCombined,
+  combinedCoops,
+  requestedVolumeTons = 20
 }) {
-  const [copiedLink, setCopiedLink] = useState(false);
+  if (!isOpen || !cooperative) return null;
 
-  if (!isOpen || (!cooperative && !isCombined)) return null;
+  // CÁLCULOS DETERMINÍSTICOS ATP / CTP (Sección 12)
+  const stockAptoTons = (cooperative.stockAptoKg || 5000) / 1000;           // 5.0 t seco disponible (ATP)
+  const stockReservadoTons = (cooperative.stockReservadoKg || 0) / 1000;    // 0.0 t
+  const stockSeguridadTons = (cooperative.stockSeguridadKg || 1000) / 1000; // 1.0 t
+  
+  // ATP = stock_apto - reservas_activas - stock_seguridad
+  const atpTons = Math.max(0, stockAptoTons - stockReservadoTons - stockSeguridadTons); // 4.0 t confirmables de inmediato
 
-  const handlePrint = () => {
-    window.print();
-  };
+  // CTP = Acopio proyectado ajustado por factor climático y capacidad operativa de secado
+  const rawAcopioTons = 15.0; // 15.0 t acopio proyectado
+  const secadoLimitTons = (cooperative.capacidadSecadoKg || 12000) / 1000; // 12.0 t limitante por lluvias SENAMHI
+  
+  const ctpAcopioAjustadoTons = Math.min(rawAcopioTons, secadoLimitTons); // 12.0 t probables
 
-  const handleShare = () => {
-    navigator.clipboard?.writeText?.(window.location.href);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
-  };
+  // Respaldado Total = ATP + CTP
+  const totalBackedTons = atpTons + ctpAcopioAjustadoTons; // 4.0 + 12.0 = 16.0 t
 
-  // Determine single or combined metrics
-  const reportTitle = isCombined 
-    ? "Reporte de Compromiso Combinado (Cobertura Conjunta Multi-Cooperativa)" 
-    : `Reporte de Compromiso Due Diligence — ${cooperative.name}`;
+  // Brecha No Respaldada
+  const gapTons = Math.max(0, requestedVolumeTons - totalBackedTons); // 20 - 16 = 4.0 t
 
-  const confidenceScore = isCombined ? 85 : (cooperative?.confidenceScore || 87);
-  const recommendedCap = isCombined ? requestedVolumeTons : (cooperative?.recommendedCapacity || 24);
-  const riskLevelText = isCombined ? "Moderado (Diversificado en 4 cooperativas)" : (cooperative?.currentRisk || "Moderado");
+  // Cobertura Real (P0-1 Fix: NUNCA mostrar 100% si hay brecha)
+  const coveragePct = Math.round((totalBackedTons / requestedVolumeTons) * 100);
+
+  // Fecha Viable (Ruta Crítica Hacia Atrás - Sección 13)
+  const requestedDate = "15 de Octubre 2026";
+  const firstViableDate = gapTons > 0 ? "24 de Octubre 2026 (+9 días para secado adicional)" : requestedDate;
+
+  // Índice de Riesgo Explicable (Sección 14)
+  const volumeRisk = gapTons > 0 ? 45 : 10;
+  const climateRisk = 35; // SENAMHI lluvias Uchiza
+  const docRisk = 15;     // SENASA en trámite
+  const logisticsRisk = 10;
+  const dataFreshnessRisk = 5;
+
+  const totalRiskScore = Math.round(
+    0.35 * volumeRisk +
+    0.20 * climateRisk +
+    0.20 * docRisk +
+    0.15 * logisticsRisk +
+    0.10 * dataFreshnessRisk
+  ); // ~26 (Riesgo Bajo/Moderado)
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 no-print">
-      <div className="bg-white text-gray-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
         
-        {/* Action Header Bar (No Print) */}
-        <div className="bg-[#1E1512] text-white px-6 py-4 flex items-center justify-between border-b border-[#3D2D27]">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-[#D96B27] flex items-center justify-center font-bold text-white shadow-md">
-              <FileText className="w-5 h-5" />
+        {/* Modal Header */}
+        <div className="bg-[#174C3C] text-white p-6 relative">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-800 rounded-xl border border-emerald-600/40">
+                <Scale className="w-6 h-6 text-amber-300" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Informe de Capacidad de Compromiso (ATP / CTP)</h2>
+                <p className="text-xs text-emerald-200">
+                  Evaluación determinística para pedido de <span className="font-bold text-amber-300">{requestedVolumeTons} toneladas</span> — {cooperative.name}
+                </p>
+              </div>
             </div>
-            <div>
-              <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider block">
-                {isCombined ? 'COBERTURA CONJUNTA VERIFICADA' : 'DOCUMENTO DE DUE DILIGENCE DE OFERTA'}
-              </span>
-              <h2 className="text-sm font-bold text-white">{reportTitle}</h2>
-            </div>
+            <button onClick={onClose} className="p-1.5 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-800 transition">
+              <X className="w-6 h-6" />
+            </button>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleShare}
-              className="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>{copiedLink ? 'Link Copiado!' : 'Compartir Link'}</span>
-            </button>
-
-            <button
-              onClick={handlePrint}
-              className="bg-[#D96B27] hover:bg-[#C05A19] text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Imprimir / Descargar PDF</span>
-            </button>
-
-            <button 
-              onClick={onClose} 
-              className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          {/* Quick Metrics Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-emerald-800/60 text-xs">
+            <div className="bg-emerald-950/60 p-2.5 rounded-xl border border-emerald-800/50">
+              <span className="text-emerald-300 block text-[11px]">Volumen Solicitado</span>
+              <span className="text-lg font-black text-white">{requestedVolumeTons} t</span>
+            </div>
+            <div className="bg-emerald-950/60 p-2.5 rounded-xl border border-emerald-800/50">
+              <span className="text-emerald-300 block text-[11px]">Respaldado Total (ATP+CTP)</span>
+              <span className="text-lg font-black text-amber-300">{totalBackedTons} t</span>
+            </div>
+            <div className="bg-emerald-950/60 p-2.5 rounded-xl border border-emerald-800/50">
+              <span className="text-emerald-300 block text-[11px]">Brecha no respaldada</span>
+              <span className={`text-lg font-black ${gapTons > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{gapTons} t</span>
+            </div>
+            <div className="bg-emerald-950/60 p-2.5 rounded-xl border border-emerald-800/50">
+              <span className="text-emerald-300 block text-[11px]">Cobertura Real</span>
+              <span className={`text-lg font-black ${coveragePct >= 100 ? 'text-emerald-400' : 'text-amber-300'}`}>{coveragePct}%</span>
+            </div>
           </div>
         </div>
 
-        {/* Printable Report Document Body */}
-        <div id="printable-commitment-report" className="flex-1 overflow-y-auto p-6 sm:p-8 bg-white space-y-6 text-xs text-gray-800">
+        {/* Modal Body */}
+        <div className="p-6 overflow-y-auto space-y-6 bg-[#F6F8F5]">
           
-          {/* Document Header & Watermark */}
-          <div className="border-b border-gray-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-2xl font-black tracking-tight text-[#1E1512]">AGROCONECTA</h1>
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-300">
-                  DOCUMENTO VERIFICADO EN BLOCKCHAIN / GEODB
-                </span>
+          {/* Warning Banner if Gap Exists */}
+          {gapTons > 0 && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-900 leading-relaxed">
+                <h4 className="font-bold text-amber-900 text-sm">Cobertura Parcial del Pedido ({coveragePct}%)</h4>
+                <p>
+                  De las {requestedVolumeTons} t solicitadas, la cooperativa puede confirmar <strong>{atpTons} t inmediatamente (ATP)</strong> y <strong>{ctpAcopioAjustadoTons} t en proceso ajustado (CTP)</strong>. Existe una brecha no respaldada de <strong>{gapTons} t</strong> generada por restricciones de secado solar (lluvias SENAMHI).
+                </p>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Plataforma B2B de Certificación de Capacidad Comprometible y Trazabilidad de Cacao Peruano
-              </p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
-                Código de Auditoría: <span className="font-mono text-gray-700 font-semibold">REP-2026-VALLE-0091</span> • Generado: {new Date().toLocaleDateString('es-PE')}
-              </p>
+            </div>
+          )}
+
+          {/* Breakdown Section: ATP vs CTP */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Box 1: ATP (Available to Promise) */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#237A57]" />
+                  1. Stock Disponible Inmediato (ATP)
+                </h3>
+                <span className="bg-emerald-100 text-[#174C3C] text-[11px] font-bold px-2 py-0.5 rounded-full">{atpTons} t confirmadas</span>
+              </div>
+              
+              <div className="space-y-1.5 text-xs text-slate-600">
+                <div className="flex justify-between">
+                  <span>Grano seco en almacén (Lote CAC-014):</span>
+                  <span className="font-bold text-slate-800">{stockAptoTons} t</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>(-) Reservas activas para otros pedidos:</span>
+                  <span className="font-bold text-slate-800">-{stockReservadoTons} t</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>(-) Reserva técnica de seguridad:</span>
+                  <span className="font-bold text-slate-800">-{stockSeguridadTons} t</span>
+                </div>
+                <div className="pt-2 border-t border-slate-100 flex justify-between font-bold text-slate-800">
+                  <span>ATP Neto Inmediato:</span>
+                  <span className="text-[#237A57]">{atpTons} t</span>
+                </div>
+              </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center min-w-[200px]">
-              <span className="text-[10px] text-gray-500 uppercase font-semibold block">Confianza de Entrega Calculada</span>
-              <div className="text-3xl font-black text-emerald-600 mt-0.5">{confidenceScore} <span className="text-sm font-normal text-gray-500">/ 100</span></div>
-              <span className="inline-block mt-1 text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                ALTA CONFIANZA
-              </span>
+            {/* Box 2: CTP (Capable to Promise) */}
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-amber-600" />
+                  2. Acopio Proyectado en Proceso (CTP)
+                </h3>
+                <span className="bg-amber-100 text-amber-900 text-[11px] font-bold px-2 py-0.5 rounded-full">{ctpAcopioAjustadoTons} t probables</span>
+              </div>
+
+              <div className="space-y-1.5 text-xs text-slate-600">
+                <div className="flex justify-between">
+                  <span>Acopio base proyectado en campo:</span>
+                  <span className="font-bold text-slate-800">{rawAcopioTons} t</span>
+                </div>
+                <div className="flex justify-between text-amber-700">
+                  <span>Restricción de secado (Lluvias SENAMHI):</span>
+                  <span className="font-bold">Máx {secadoLimitTons} t</span>
+                </div>
+                <div className="pt-2 border-t border-slate-100 flex justify-between font-bold text-slate-800">
+                  <span>CTP Acondicionado:</span>
+                  <span className="text-amber-600">{ctpAcopioAjustadoTons} t</span>
+                </div>
+              </div>
             </div>
+
           </div>
 
-          {/* Section 1: Origen & Entidad */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold text-[#1E1512] flex items-center space-x-2 border-b pb-1 border-gray-100">
-              <MapPin className="w-4 h-4 text-[#D96B27]" />
-              <span>1. ORIGEN & UBICACIÓN VERIFICADA</span>
+          {/* Delivery Schedule & Bottleneck */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#237A57]" />
+              Programación de Fecha Viable & Ruta Crítica
             </h3>
-
-            {!isCombined ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-amber-50/50 p-4 rounded-xl border border-amber-100">
-                <div>
-                  <span className="text-[10px] text-gray-500 uppercase block font-semibold">Cooperativa Productora</span>
-                  <span className="font-bold text-sm text-[#1E1512]">{cooperative.name}</span>
-                  <span className="text-xs text-gray-600 block">{cooperative.region}</span>
-                </div>
-
-                <div>
-                  <span className="text-[10px] text-gray-500 uppercase block font-semibold">Socios & Parcelas</span>
-                  <span className="font-bold text-[#1E1512]">{cooperative.membersCount} familias socias</span>
-                  <span className="text-xs text-gray-600 block">{cooperative.parcelsCount} parcelas georreferenciadas</span>
-                </div>
-
-                <div>
-                  <span className="text-[10px] text-gray-500 uppercase block font-semibold">Trazabilidad EUDR</span>
-                  <span className="font-bold text-emerald-700 flex items-center space-x-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{cooperative.eudrStatus}</span>
-                  </span>
-                </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <span className="text-slate-500 block text-[11px]">Fecha Solicitada por Comprador</span>
+                <span className="font-bold text-slate-800 text-sm">{requestedDate}</span>
               </div>
-            ) : (
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <span className="font-bold text-[#1E1512] block mb-2">Paquete Combinado de Cobertura Conjunta ({combinedCoops.length} Cooperativas):</span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {combinedCoops.map((c, idx) => (
-                    <div key={idx} className="bg-white p-3 rounded-lg border border-gray-200 flex justify-between items-center">
-                      <div>
-                        <span className="font-bold text-gray-900 block">{c.name}</span>
-                        <span className="text-[11px] text-gray-500">{c.region} • {c.variety}</span>
-                      </div>
-                      <span className="font-bold text-emerald-700 text-sm bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
-                        {c.assignedVolume} t
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Section 2: Calidad & Certificaciones */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <h3 className="text-sm font-bold text-[#1E1512] flex items-center space-x-2 border-b pb-1 border-gray-100">
-                <Award className="w-4 h-4 text-[#D96B27]" />
-                <span>2. CALIDAD & VARIETAL</span>
-              </h3>
-              <div className="bg-gray-50 p-4 rounded-xl space-y-2 border border-gray-200">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Variedad Principal:</span>
-                  <span className="font-bold text-gray-900">{cooperative?.variety || 'CCN-51 / Nativo'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">% Fino de Aroma:</span>
-                  <span className="font-bold text-emerald-700">{cooperative?.fineAromaPct || 82}% Fino</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Humedad de Embarque:</span>
-                  <span className="font-bold text-gray-900">6.5% – 7.0%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Grano Fermentado:</span>
-                  <span className="font-bold text-gray-900">Mínimo 85% de grado 1</span>
-                </div>
+              <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                <span className="text-emerald-800 block text-[11px]">Primera Fecha Viable Sugerida</span>
+                <span className="font-bold text-[#174C3C] text-sm">{firstViableDate}</span>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-sm font-bold text-[#1E1512] flex items-center space-x-2 border-b pb-1 border-gray-100">
-                <ShieldCheck className="w-4 h-4 text-[#D96B27]" />
-                <span>3. CERTIFICACIONES VIGENTES</span>
-              </h3>
-              <div className="bg-gray-50 p-4 rounded-xl space-y-2 border border-gray-200">
-                {(cooperative?.certifications || [
-                  { name: "Orgánico UE", entity: "Control Union", status: "Vigente" },
-                  { name: "Comercio Justo (Fairtrade)", entity: "FLOCERT", status: "Vigente" },
-                  { name: "Fitosanitario SENASA", entity: "SENASA Perú", status: "Vigente" }
-                ]).map((cert, idx) => (
-                  <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border border-gray-100">
-                    <span className="font-semibold text-gray-800">{cert.name}</span>
-                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
-                      {cert.status} ({cert.entity})
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Capacidad Comprometible & Campaña */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold text-[#1E1512] flex items-center space-x-2 border-b pb-1 border-gray-100">
-              <TrendingUp className="w-4 h-4 text-[#D96B27]" />
-              <span>4. ANÁLISIS DE CAPACIDAD COMPROMETIBLE</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-900 text-white p-4 rounded-xl">
-              <div>
-                <span className="text-[10px] text-gray-400 block uppercase font-semibold">Rango de Capacidad</span>
-                <span className="text-lg font-black text-amber-400">{cooperative?.capacityRange || '22–27 t'}</span>
-              </div>
-
-              <div>
-                <span className="text-[10px] text-gray-400 block uppercase font-semibold">Capacidad Recomendada</span>
-                <span className="text-lg font-black text-white">{recommendedCap} toneladas</span>
-              </div>
-
-              <div>
-                <span className="text-[10px] text-gray-400 block uppercase font-semibold">Solicitado por Comprador</span>
-                <span className="text-lg font-black text-sky-400">{requestedVolumeTons} toneladas</span>
-              </div>
-
-              <div>
-                <span className="text-[10px] text-gray-400 block uppercase font-semibold">Cobertura de Pedido</span>
-                <span className="text-lg font-black text-emerald-400">
-                  {requestedVolumeTons <= (cooperative?.maxCapacity || 27) ? '100% Cubierto' : 'Cobertura Conjunta Requerida'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: Historial de Cumplimiento */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold text-[#1E1512] flex items-center space-x-2 border-b pb-1 border-gray-100">
-              <Users className="w-4 h-4 text-[#D96B27]" />
-              <span>5. HISTORIAL DE CUMPLIMIENTO HISTÓRICO (ÚLTIMAS 5 CAMPAÑAS)</span>
-            </h3>
-
-            <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200 flex items-center justify-between">
-              <div>
-                <span className="font-bold text-[#1E1512] block">Record de Entregas a Tiempo:</span>
-                <span className="text-xs text-gray-600">
-                  {cooperative?.historicalFulfillment || '4 de 5 campañas cumplidas con éxito (88%)'}
-                </span>
-              </div>
-
-              <div className="flex space-x-1.5">
-                <span className="bg-emerald-600 text-white px-2 py-1 rounded text-[11px] font-bold">2022 ✓</span>
-                <span className="bg-emerald-600 text-white px-2 py-1 rounded text-[11px] font-bold">2023 ✓</span>
-                <span className="bg-emerald-600 text-white px-2 py-1 rounded text-[11px] font-bold">2024 ✓</span>
-                <span className="bg-rose-500 text-white px-2 py-1 rounded text-[11px] font-bold">2025 ✕ (Sequía VRAEM)</span>
-                <span className="bg-amber-500 text-black px-2 py-1 rounded text-[11px] font-bold">2026 En curso</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 5: Conclusión & Dictamen Final */}
-          <div className="bg-gradient-to-r from-[#1E1512] to-[#2A1E1A] text-white p-6 rounded-2xl border border-amber-900/40 space-y-3">
-            <div className="flex items-center space-x-2 text-amber-400">
-              <Sparkles className="w-5 h-5" />
-              <span className="font-bold uppercase tracking-wider text-xs">DICTAMEN FINAL Y RECOMENDACIÓN DE NEGOCIACIÓN</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div className="bg-white/10 p-3 rounded-xl border border-white/10">
-                <span className="text-[10px] text-gray-400 uppercase block font-semibold">Capacidad Máxima Recomendada</span>
-                <span className="text-xl font-bold text-white">{recommendedCap} t</span>
-              </div>
-
-              <div className="bg-white/10 p-3 rounded-xl border border-white/10">
-                <span className="text-[10px] text-gray-400 uppercase block font-semibold">Nivel de Confianza de Entrega</span>
-                <span className="text-xl font-bold text-emerald-400">{confidenceScore} / 100</span>
-              </div>
-
-              <div className="bg-white/10 p-3 rounded-xl border border-white/10">
-                <span className="text-[10px] text-gray-400 uppercase block font-semibold">Riesgo Climático / Entrega</span>
-                <span className="text-xl font-bold text-amber-400">{riskLevelText}</span>
-              </div>
-            </div>
-
-            <p className="text-xs text-gray-300 pt-2 border-t border-white/10">
-              {isCombined 
-                ? "El paquete de Cobertura Conjunta diversifica el riesgo en 4 cooperativas compatibles en varietal y certificación orgánica. Se recomienda iniciar oferta formal combinada."
-                : "La cooperativa cuenta con capacidad sólida y trazabilidad 100% verificada. El acopio actual presenta un desfase temporal menor de 4.9t atribuible a precipitaciones SENAMHI, pero cubrible dentro del margen de 21 días al embarque."}
+            <p className="text-xs text-slate-500 italic leading-relaxed">
+              * Cuello de botella detectado en capacidad de secado solar debido a precipitaciones de 68mm/72h reportadas por la Estación SENAMHI Tocache.
             </p>
           </div>
 
+          {/* Pricing & Net Margin Breakdown (Sección 15) */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <Scale className="w-4 h-4 text-amber-600" />
+              Precio Referencial de Mercado & Simulación de Margen
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span className="text-slate-500 text-[11px] block">Base Bolsa ICE NY</span>
+                <span className="font-bold text-slate-800">US$ 8.42 / kg</span>
+              </div>
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span className="text-slate-500 text-[11px] block">Primas Orgánico / FT</span>
+                <span className="font-bold text-emerald-700">+US$ 0.70 / kg</span>
+              </div>
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                <span className="text-slate-500 text-[11px] block">Costos Procesamiento/Flete</span>
+                <span className="font-bold text-slate-700">-US$ 0.60 / kg</span>
+              </div>
+              <div className="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
+                <span className="text-emerald-800 text-[11px] block">Precio Sugerido FOB Callao</span>
+                <span className="font-bold text-[#174C3C]">US$ 8.52 / kg</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Actionable Decision Recommendation (Sección 24) */}
+          <div className="bg-emerald-900 text-white p-5 rounded-xl space-y-2">
+            <h4 className="font-bold text-sm text-amber-300 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" />
+              Recomendación Transaccional Sugerida por AgroConecta
+            </h4>
+            <p className="text-xs text-emerald-100 leading-relaxed">
+              Confirmar <strong>{atpTons} t disponibles inmediatamente</strong>; ofrecer hasta <strong>{ctpAcopioAjustadoTons} t adicionales de manera condicionada</strong> al secado del acopio de Semana 6; no comprometer {gapTons} t sin ampliación de fecha al 24 de Octubre o sin activar Cobertura Conjunta con Cooperativa Bosque Andino.
+            </p>
+          </div>
+
+        </div>
+
+        {/* Modal Footer */}
+        <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-between">
+          <span className="text-xs text-slate-400">Datos auditados determinísticamente desde inventario y bitácoras.</span>
+          <button
+            onClick={onClose}
+            className="px-6 py-2 bg-[#237A57] text-white text-xs font-bold rounded-lg hover:bg-[#174C3C] transition shadow-sm"
+          >
+            Entendido
+          </button>
         </div>
 
       </div>

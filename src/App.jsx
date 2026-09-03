@@ -8,6 +8,10 @@ import ConfidenceIndexModal from './components/ConfidenceIndexModal';
 import LotTraceabilityModal from './components/LotTraceabilityModal';
 import InteractiveMap from './components/InteractiveMap';
 import OrderTrackingModal from './components/OrderTrackingModal';
+import AgroConectaAssistant from './components/AgroConectaAssistant';
+import OnboardingWizardModal from './components/OnboardingWizardModal';
+import PracticeModeBanner from './components/PracticeModeBanner';
+import ExcelImportModal from './components/ExcelImportModal';
 
 // Views
 import BuyerDashboard from './views/BuyerDashboard';
@@ -34,9 +38,9 @@ import {
 } from './data/mockData';
 
 export default function App() {
-  // Navigation & Role State
-  const [activeRole, setActiveRole] = useState('buyer'); // 'buyer' | 'coop'
-  const [activeTab, setActiveTab] = useState('buyer-dashboard');
+  // Navigation & Role State (Sección 21.1)
+  const [activeRole, setActiveRole] = useState('coop'); // 'coop' | 'buyer'
+  const [activeTab, setActiveTab] = useState('coop-dashboard');
 
   // Application Data State
   const [cooperatives, setCooperatives] = useState(INITIAL_COOPERATIVES);
@@ -51,7 +55,7 @@ export default function App() {
   const [activeLotForTraceability, setActiveLotForTraceability] = useState(null);
   const [activeOfferForTracking, setActiveOfferForTracking] = useState(null);
 
-  // Modals Toggle State
+  // Modals & UI Widgets Toggle State
   const [isTelegramOpen, setIsTelegramOpen] = useState(false);
   const [isCommitmentReportOpen, setIsCommitmentReportOpen] = useState(false);
   const [isCombinedReport, setIsCombinedReport] = useState(false);
@@ -60,13 +64,15 @@ export default function App() {
   const [isConfidenceModalOpen, setIsConfidenceModalOpen] = useState(false);
   const [isLotTraceabilityOpen, setIsLotTraceabilityOpen] = useState(false);
   const [isOrderTrackingOpen, setIsOrderTrackingOpen] = useState(false);
-  const [requestedOfferVolume, setRequestedOfferVolume] = useState(50);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isExcelImportOpen, setIsExcelImportOpen] = useState(false);
+  const [isPracticeMode, setIsPracticeMode] = useState(false);
+  const [requestedOfferVolume, setRequestedOfferVolume] = useState(20);
 
-  // Handlers for Telegram Real Data Updates
+  // Telegram Real Data Updates (Idempotente - Sección 19)
   const handleAddNewLotFromTelegram = (newLot) => {
     setLots(prev => [newLot, ...prev]);
 
-    // Live Update Commitment Curve & Acopio Volume
     setCommitmentCurve(prev => prev.map(item => {
       if (item.week.includes('Semana 5')) {
         const addedTons = Number((newLot.weightKg / 1000).toFixed(1));
@@ -81,7 +87,7 @@ export default function App() {
     }));
   };
 
-  // Handlers for Comparison Toggle
+  // Handlers para Comparación de Cooperativas
   const handleToggleCompare = (coop) => {
     setSelectedForCompare(prev => {
       const exists = prev.some(c => c.id === coop.id);
@@ -95,7 +101,7 @@ export default function App() {
     setSelectedForCompare(prev => prev.filter(c => c.id !== coopId));
   };
 
-  // Handlers for Submitting and Accepting Offers
+  // Handlers para Envío y Aceptación Transaccional de Ofertas (P0-3)
   const handleAddNewOffer = (newOffer) => {
     const formattedOffer = {
       ...newOffer,
@@ -105,6 +111,9 @@ export default function App() {
       cooperativeName: newOffer.coopName || selectedCoop.name,
       offeredPriceUsdKg: newOffer.pricePerKgUsd,
       volumeTons: newOffer.volume,
+      backedVolumeTons: Math.min(newOffer.volume, 16.0),
+      gapTons: Math.max(0, newOffer.volume - 16.0),
+      coberturaPct: Math.round((Math.min(newOffer.volume, 16.0) / newOffer.volume) * 100),
       totalValueUsd: newOffer.volume * 1000 * newOffer.pricePerKgUsd,
       incoterm: "FOB Callao",
       status: "ENVIADA",
@@ -154,32 +163,43 @@ export default function App() {
       buyerContact: "Trading Desk Direct",
       country: "Alemania / UE",
       coopId: "multi-coop-package",
-      coopName: "Paquete Combinado (Valle Verde + 3 Cooperativas)",
+      coopName: "Paquete Combinado (Valle Verde + Bosque Andino)",
       volumeTons: totalTons,
+      backedVolumeTons: totalTons,
+      gapTons: 0,
+      coberturaPct: 100,
       pricePerKgUsd: 8.50,
       totalValueUsd: totalTons * 1000 * 8.50,
       incoterm: "FOB Callao",
       variety: "CCN-51 / Nativo Fino de Aroma (Certificado Orgánico)",
       requestedDeliveryDate: "2026-10-20",
       status: "ENVIADA",
-      expirationHoursLeft: 48,
-      marketPriceRefUsdKg: 8.42,
-      priceVsMarketPct: +0.9,
-      coverageStatus: `Cobertura Conjunta 100% Cubierta (${totalTons} t)`,
+      coverageStatus: "PROPUESTA_COBERTURA_CONJUNTA",
       isJointCoverage: true,
       history: [
-        { date: new Date().toLocaleString(), text: `Oferta conjunta enviada a 4 cooperativas para ${totalTons} t.` }
+        { date: new Date().toLocaleString(), text: `Propuesta de cobertura conjunta enviada a las cooperativas agregadas para ${totalTons} t.` }
       ]
     };
 
     setOffers(prev => [jointOffer, ...prev]);
-    alert(`🎉 ¡Oferta Conjunta de ${totalTons} t confirmada y enviada a las cooperativas agregadas!`);
+    alert(`🎉 ¡Propuesta de Cobertura Conjunta de ${totalTons} t enviada exitosamente para revisión de las cooperativas!`);
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] text-[#1E1512] font-sans antialiased selection:bg-[#D96B27] selection:text-white">
+    <div className="min-h-screen bg-[#F6F8F5] text-[#17211B] font-sans antialiased selection:bg-[#237A57] selection:text-white">
       
-      {/* Primary Top Header */}
+      {/* Banner Flotante de Modo Práctica */}
+      <PracticeModeBanner
+        isPracticeMode={isPracticeMode}
+        onTogglePracticeMode={() => setIsPracticeMode(!isPracticeMode)}
+        onResetPracticeData={() => {
+          setLots(INITIAL_LOTS);
+          setOffers(INITIAL_OFFERS);
+          alert("🔄 Datos del Modo Práctica reiniciados a los valores iniciales.");
+        }}
+      />
+
+      {/* Header Principal */}
       <Header 
         activeRole={activeRole}
         setActiveRole={setActiveRole}
@@ -190,6 +210,10 @@ export default function App() {
           setIsCombinedReport(isCombined);
           setIsCommitmentReportOpen(true);
         }}
+        onOpenOnboarding={() => setIsOnboardingOpen(true)}
+        onOpenExcelImport={() => setIsExcelImportOpen(true)}
+        isPracticeMode={isPracticeMode}
+        onTogglePracticeMode={() => setIsPracticeMode(!isPracticeMode)}
         activeOffersCount={offers.length}
         alertsCount={alerts.length}
         selectedCoopName={selectedCoop?.name || "Cooperativa Valle Verde"}
@@ -199,7 +223,7 @@ export default function App() {
         }}
       />
 
-      {/* Main App Container */}
+      {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
         {/* BUYER PORTAL VIEWS */}
@@ -286,9 +310,10 @@ export default function App() {
 
             {activeTab === 'interactive-map' && (
               <div className="space-y-4">
-                <h1 className="text-xl font-black text-[#1E1512]">Mapa Interactivo de Orígenes & Parcelas EUDR</h1>
+                <h1 className="text-xl font-black text-slate-800">Mapa de Zonas y Orígenes EUDR (Vista Comprador)</h1>
                 <InteractiveMap 
-                  cooperatives={cooperatives} 
+                  cooperatives={cooperatives}
+                  userRole="buyer"
                   onSelectCoop={(coop) => {
                     setSelectedCoop(coop);
                     setActiveTab('coop-profile');
@@ -298,7 +323,7 @@ export default function App() {
             )}
 
             {(activeTab === 'market' || activeTab === 'market-prices' || activeTab === 'senamhi-weather') && (
-              <MarketView onOpenTelegram={() => setIsTelegramOpen(true)} />
+              <MarketPricesView />
             )}
           </>
         )}
@@ -316,8 +341,8 @@ export default function App() {
                 onOpenLotManagement={() => setActiveTab('lots-management')}
                 onOpenOffersView={() => setActiveTab('coop-offers')}
                 onOpenWeatherView={() => setActiveTab('senamhi-weather')}
+                onOpenExcelImport={() => setIsExcelImportOpen(true)}
                 onAcceptOffer={handleAcceptOffer}
-                onCounterOffer={(off) => alert(`💬 Solicitud de contraoferta abierta para ${off.buyerCompany}.`)}
               />
             )}
 
@@ -357,6 +382,10 @@ export default function App() {
               <MassBalanceView lots={lots} />
             )}
 
+            {activeTab === 'senamhi-weather' && (
+              <SenamhiWeatherView />
+            )}
+
             {activeTab === 'campaign-history' && (
               <CampaignHistoryView />
             )}
@@ -365,9 +394,15 @@ export default function App() {
 
       </main>
 
-      {/* GLOBAL INTERACTIVE MODALS & DRAWERS */}
+      {/* Asistente Contextual AgroConecta */}
+      <AgroConectaAssistant
+        activeTab={activeTab}
+        activeRole={activeRole}
+        selectedCoop={selectedCoop}
+        onNavigate={(tab) => setActiveTab(tab)}
+      />
 
-      {/* 1. Telegram Field Simulator */}
+      {/* GLOBAL INTERACTIVE MODALS */}
       <TelegramSimulator 
         isOpen={isTelegramOpen}
         onToggle={() => setIsTelegramOpen(!isTelegramOpen)}
@@ -376,7 +411,6 @@ export default function App() {
         cooperative={cooperatives[0]}
       />
 
-      {/* 2. Commitment Report Due Diligence Modal (MÓDULO 3) */}
       <CommitmentReportModal 
         isOpen={isCommitmentReportOpen}
         onClose={() => setIsCommitmentReportOpen(false)}
@@ -386,7 +420,6 @@ export default function App() {
         requestedVolumeTons={requestedOfferVolume}
       />
 
-      {/* 3. Joint Coverage Multi-Coop Aggregator Modal (MÓDULO 4) */}
       <JointCoverageModal 
         isOpen={isJointCoverageOpen}
         onClose={() => setIsJointCoverageOpen(false)}
@@ -400,7 +433,6 @@ export default function App() {
         }}
       />
 
-      {/* 4. Make Offer Modal */}
       <MakeOfferModal 
         isOpen={isMakeOfferOpen}
         onClose={() => setIsMakeOfferOpen(false)}
@@ -413,21 +445,18 @@ export default function App() {
         }}
       />
 
-      {/* 5. Confidence Score Breakdown Modal ("¿Por qué 87?") */}
       <ConfidenceIndexModal 
         isOpen={isConfidenceModalOpen}
         onClose={() => setIsConfidenceModalOpen(false)}
         cooperative={selectedCoop || cooperatives[0]}
       />
 
-      {/* 6. Lot Traceability Timeline & QR Modal */}
       <LotTraceabilityModal 
         isOpen={isLotTraceabilityOpen}
         onClose={() => setIsLotTraceabilityOpen(false)}
         lot={activeLotForTraceability || lots[0]}
       />
 
-      {/* 7. End-to-End Order Fulfillment & Delivery Tracking Modal */}
       {isOrderTrackingOpen && (
         <OrderTrackingModal 
           offer={activeOfferForTracking || offers[0]}
@@ -435,6 +464,20 @@ export default function App() {
           onSimulateNextStage={handleSimulateNextStage}
         />
       )}
+
+      <OnboardingWizardModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onCompleteSetup={(formData) => alert(`✅ Configuración de ${formData.coopName} guardada e integrada.`)}
+      />
+
+      <ExcelImportModal
+        isOpen={isExcelImportOpen}
+        onClose={() => setIsExcelImportOpen(false)}
+        onImportData={(importedRows) => {
+          console.log("Filas importadas:", importedRows);
+        }}
+      />
 
     </div>
   );
