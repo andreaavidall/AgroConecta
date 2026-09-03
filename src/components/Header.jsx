@@ -4,20 +4,20 @@ import {
   ShoppingBag, 
   MessageSquareCode, 
   FileCheck2, 
-  Users, 
   Layers, 
   Map, 
   CloudSun, 
   TrendingUp, 
   Award, 
   Scale, 
-  History, 
   Gamepad2, 
-  Bot, 
   Sparkles, 
-  Download,
   Calendar,
-  ChevronDown
+  Globe,
+  Bot,
+  ShieldCheck,
+  CheckCircle2,
+  ChevronRight
 } from 'lucide-react';
 
 export default function Header({
@@ -28,13 +28,11 @@ export default function Header({
   onOpenTelegram,
   onOpenCommitmentReport,
   onOpenOnboarding,
-  onOpenExcelImport,
+  onOpenAssistant,
   isPracticeMode,
   onTogglePracticeMode,
   activeOffersCount,
-  alertsCount,
-  selectedCoopName,
-  onSelectCoopByName
+  selectedCoopName
 }) {
 
   // Opciones de navegación adaptadas por Rol (Sección 21.1)
@@ -48,122 +46,148 @@ export default function Header({
   ];
 
   const buyerNavTabs = [
-    { id: 'buyer-dashboard', label: 'Resumen Oferta Verificable', icon: Building2 },
-    { id: 'marketplace', label: 'Vitrina de Orígenes', icon: ShoppingBag },
+    { id: 'buyer-dashboard', label: 'Resumen del Origen', icon: Building2 },
+    { id: 'marketplace', label: 'Vitrina de Ofertas', icon: ShoppingBag },
     { id: 'interactive-map', label: 'Mapa EUDR (Zonas)', icon: Map },
     { id: 'buyer-offers', label: 'Mis Pedidos & Cotizaciones', icon: FileCheck2, badge: activeOffersCount },
-    { id: 'market-prices', label: 'Precios de Bolsa ICE NY', icon: TrendingUp }
+    { id: 'market-prices', label: 'Cotizaciones Bolsa ICE NY', icon: TrendingUp }
   ];
 
   const currentTabs = activeRole === 'coop' ? coopNavTabs : buyerNavTabs;
+  const isBuyer = activeRole === 'buyer';
 
   return (
-    <header className="bg-[#174C3C] text-white border-b border-emerald-950/40 sticky top-0 z-30 shadow-md">
+    <header className={`text-white sticky top-0 z-30 shadow-lg border-b transition-colors duration-300 ${
+      isBuyer 
+        ? 'bg-gradient-to-r from-[#0B291E] via-[#123B2C] to-[#0E2F22] border-emerald-900/60' 
+        : 'bg-gradient-to-r from-[#174C3C] via-[#1E5D4A] to-[#0F3529] border-emerald-900/40'
+    }`}>
       
-      {/* Top Utility Bar */}
-      <div className="bg-[#0F3529] px-4 sm:px-8 py-2 text-xs flex flex-wrap items-center justify-between gap-2 border-b border-emerald-900/50">
-        
-        {/* Active Organization & Campaign Context */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 font-bold text-amber-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>AGROCONECTA PERÚ</span>
-          </div>
-
-          <span className="text-emerald-700">|</span>
-
-          {/* Active Coop Badge */}
-          <div className="flex items-center gap-1 bg-emerald-900/80 px-2.5 py-0.5 rounded-full border border-emerald-700/50 text-emerald-200">
-            <Building2 className="w-3 h-3 text-amber-300" />
-            <span className="font-semibold text-[11px]">{selectedCoopName}</span>
-          </div>
-
-          {/* Active Campaign Badge */}
-          <div className="hidden md:flex items-center gap-1 bg-emerald-900/50 px-2 py-0.5 rounded-md text-emerald-300 text-[11px]">
-            <Calendar className="w-3 h-3 text-emerald-400" />
-            <span>Campaña Cacao 2026</span>
-          </div>
-        </div>
-
-        {/* Global Action Tools */}
-        <div className="flex items-center gap-2">
+      {/* Top Utility Header Bar */}
+      <div className="bg-black/30 backdrop-blur-md px-4 sm:px-8 py-2 text-xs border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
           
-          {/* Demo Mode Indicator */}
-          <span className="hidden lg:inline-block px-2 py-0.5 bg-emerald-950/60 rounded text-[10px] text-emerald-300 font-mono border border-emerald-800">
-            Modo Demostración (Local Repository)
-          </span>
+          {/* Left Brand Identity & Context */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 font-black text-sm tracking-wide text-white">
+              <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-amber-300">
+                🌱
+              </div>
+              <span className="bg-gradient-to-r from-white via-emerald-100 to-amber-200 bg-clip-text text-transparent">
+                AGROCONECTA
+              </span>
+            </div>
 
-          {/* Guided Setup Launcher */}
-          {activeRole === 'coop' && (
+            <span className="text-emerald-700/60 hidden sm:inline">|</span>
+
+            {/* Context Badge based on Role */}
+            {isBuyer ? (
+              <div className="hidden sm:flex items-center gap-1.5 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-700/40 text-emerald-200">
+                <Globe className="w-3.5 h-3.5 text-amber-300" />
+                <span className="font-semibold text-[11px]">Vitrina Internacional de Oferta Verificable (EUDR)</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-emerald-900/90 px-2.5 py-0.5 rounded-full border border-emerald-700/50 text-emerald-100">
+                  <Building2 className="w-3 h-3 text-amber-300" />
+                  <span className="font-bold text-[11px]">{selectedCoopName}</span>
+                </div>
+                <div className="hidden md:flex items-center gap-1 bg-emerald-950/60 px-2 py-0.5 rounded-md text-emerald-300 text-[11px]">
+                  <Calendar className="w-3 h-3 text-emerald-400" />
+                  <span>Campaña 2026</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Action Tools & Role Switcher */}
+          <div className="flex items-center gap-2">
+            
+            {/* Coop-specific field tools */}
+            {!isBuyer && (
+              <>
+                <button
+                  onClick={onOpenOnboarding}
+                  className="bg-emerald-800/80 hover:bg-emerald-700 text-amber-300 px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition border border-emerald-600/40"
+                  title="Configuración Inicial Guiada"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span className="hidden sm:inline">Configuración Guiada</span>
+                </button>
+
+                <button
+                  onClick={onTogglePracticeMode}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition ${
+                    isPracticeMode
+                      ? 'bg-amber-500 text-slate-900 shadow-inner'
+                      : 'bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50'
+                  }`}
+                  title="Activar entorno seguro de práctica"
+                >
+                  <Gamepad2 className="w-3.5 h-3.5" />
+                  <span className="hidden md:inline">{isPracticeMode ? 'Modo Práctica Activo' : 'Modo Práctica'}</span>
+                </button>
+
+                <button
+                  onClick={onOpenTelegram}
+                  className="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition shadow-sm"
+                >
+                  <MessageSquareCode className="w-3.5 h-3.5" />
+                  <span>Bot Telegram</span>
+                </button>
+              </>
+            )}
+
+            {/* Contextual Assistant Launcher */}
             <button
-              onClick={onOpenOnboarding}
-              className="bg-emerald-800/80 hover:bg-emerald-700 text-amber-300 px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition border border-emerald-600/40"
-              title="Configuración Inicial Guiada"
+              onClick={onOpenAssistant}
+              className="bg-emerald-800/60 hover:bg-emerald-700 text-emerald-100 px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition border border-emerald-600/30"
+              title="Abrir Asistente Explicativo"
             >
-              <Sparkles className="w-3 h-3" />
-              <span className="hidden sm:inline">Configuración Guiada</span>
+              <Bot className="w-3.5 h-3.5 text-amber-300" />
+              <span className="hidden sm:inline">Ayuda Contextual</span>
             </button>
-          )}
 
-          {/* Practice Mode Toggle Button */}
-          <button
-            onClick={onTogglePracticeMode}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition ${
-              isPracticeMode
-                ? 'bg-amber-500 text-slate-900 shadow-inner'
-                : 'bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50'
-            }`}
-            title="Activar o desactivar entorno seguro de práctica"
-          >
-            <Gamepad2 className="w-3.5 h-3.5" />
-            <span>{isPracticeMode ? 'Modo Práctica Activo' : 'Activar Modo Práctica'}</span>
-          </button>
+            {/* Premium Role Switcher Toggle */}
+            <div className="ml-1 bg-black/40 p-1 rounded-xl flex items-center border border-white/10">
+              <button
+                onClick={() => {
+                  setActiveRole('coop');
+                  setActiveTab('coop-dashboard');
+                }}
+                className={`px-3 py-1 rounded-lg text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
+                  !isBuyer
+                    ? 'bg-[#237A57] text-white shadow-md border border-emerald-400/30'
+                    : 'text-emerald-300/80 hover:text-white'
+                }`}
+              >
+                <Building2 className="w-3 h-3" />
+                <span>Cooperativa</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  setActiveRole('buyer');
+                  setActiveTab('buyer-dashboard');
+                }}
+                className={`px-3 py-1 rounded-lg text-[11px] font-black transition-all duration-200 flex items-center gap-1 ${
+                  isBuyer
+                    ? 'bg-[#237A57] text-white shadow-md border border-emerald-400/30'
+                    : 'text-emerald-300/80 hover:text-white'
+                }`}
+              >
+                <Globe className="w-3 h-3" />
+                <span>Comprador</span>
+              </button>
+            </div>
 
-          {/* Telegram Field Simulator Button */}
-          <button
-            onClick={onOpenTelegram}
-            className="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition shadow-sm"
-          >
-            <MessageSquareCode className="w-3.5 h-3.5" />
-            <span>Bot Telegram Campo</span>
-          </button>
-
-          {/* Role Switcher */}
-          <div className="ml-2 bg-emerald-950 p-0.5 rounded-lg flex items-center border border-emerald-800/60">
-            <button
-              onClick={() => {
-                setActiveRole('coop');
-                setActiveTab('coop-dashboard');
-              }}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
-                activeRole === 'coop'
-                  ? 'bg-[#237A57] text-white shadow-sm'
-                  : 'text-emerald-300 hover:text-white'
-              }`}
-            >
-              Portal Cooperativa
-            </button>
-            <button
-              onClick={() => {
-                setActiveRole('buyer');
-                setActiveTab('buyer-dashboard');
-              }}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
-                activeRole === 'buyer'
-                  ? 'bg-[#237A57] text-white shadow-sm'
-                  : 'text-emerald-300 hover:text-white'
-              }`}
-            >
-              Portal Comprador
-            </button>
           </div>
 
         </div>
-
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
         
         {/* Navigation Tabs */}
         <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
@@ -174,10 +198,10 @@ export default function Header({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   isActive
-                    ? 'bg-emerald-800 text-amber-300 shadow-inner border border-emerald-600/50'
-                    : 'text-emerald-100 hover:bg-emerald-800/50 hover:text-white'
+                    ? 'bg-white/15 text-amber-300 shadow-inner border border-amber-400/30 font-black'
+                    : 'text-emerald-100/90 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-amber-300' : 'text-emerald-300'}`} />
@@ -192,10 +216,10 @@ export default function Header({
           })}
         </nav>
 
-        {/* Commitment Report Quick Trigger */}
+        {/* ATP/CTP Calculator Button */}
         <button
           onClick={() => onOpenCommitmentReport(false)}
-          className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-black shadow-md transition transform hover:scale-[1.02]"
+          className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-md transition transform hover:scale-[1.02] border border-amber-300/40"
         >
           <FileCheck2 className="w-4 h-4 text-slate-950" />
           <span>Calculadora ATP/CTP (20t)</span>

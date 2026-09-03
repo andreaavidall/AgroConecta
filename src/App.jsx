@@ -26,7 +26,6 @@ import CertificatesView from './views/CertificatesView';
 import MassBalanceView from './views/MassBalanceView';
 import CampaignHistoryView from './views/CampaignHistoryView';
 import BuyerOffersView from './views/BuyerOffersView';
-import MarketView from './views/MarketView';
 
 // Mock Data
 import { 
@@ -39,8 +38,8 @@ import {
 
 export default function App() {
   // Navigation & Role State (Sección 21.1)
-  const [activeRole, setActiveRole] = useState('coop'); // 'coop' | 'buyer'
-  const [activeTab, setActiveTab] = useState('coop-dashboard');
+  const [activeRole, setActiveRole] = useState('buyer'); // 'coop' | 'buyer'
+  const [activeTab, setActiveTab] = useState('buyer-dashboard');
 
   // Application Data State
   const [cooperatives, setCooperatives] = useState(INITIAL_COOPERATIVES);
@@ -66,6 +65,7 @@ export default function App() {
   const [isOrderTrackingOpen, setIsOrderTrackingOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isExcelImportOpen, setIsExcelImportOpen] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [isPracticeMode, setIsPracticeMode] = useState(false);
   const [requestedOfferVolume, setRequestedOfferVolume] = useState(20);
 
@@ -212,6 +212,7 @@ export default function App() {
         }}
         onOpenOnboarding={() => setIsOnboardingOpen(true)}
         onOpenExcelImport={() => setIsExcelImportOpen(true)}
+        onOpenAssistant={() => setIsAssistantOpen(true)}
         isPracticeMode={isPracticeMode}
         onTogglePracticeMode={() => setIsPracticeMode(!isPracticeMode)}
         activeOffersCount={offers.length}
@@ -396,6 +397,8 @@ export default function App() {
 
       {/* Asistente Contextual AgroConecta */}
       <AgroConectaAssistant
+        isOpen={isAssistantOpen}
+        onClose={() => setIsAssistantOpen(false)}
         activeTab={activeTab}
         activeRole={activeRole}
         selectedCoop={selectedCoop}
