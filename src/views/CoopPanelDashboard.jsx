@@ -197,31 +197,8 @@ export default function CoopPanelDashboard({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left 2 Cols: Commitment Curve Chart */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div>
-              <h3 className="font-bold text-slate-800 text-base">Curva de Acopio Campaña 2026</h3>
-              <p className="text-xs text-slate-500">Comparación entre acopio proyectado y entregas registradas</p>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs">
-              <span className="flex items-center gap-1 text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                <TrendingDown className="w-3.5 h-3.5" />
-                Desviación actual: {deviationTons} t
-              </span>
-            </div>
-          </div>
-
-          <div className="h-64">
-            <CommitmentCurveChart data={commitmentCurveData} />
-          </div>
-
-          <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-900 flex items-start gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <p className="leading-relaxed">
-              <strong>Factor de riesgo asociado:</strong> Precipitaciones de 68mm en 72h (Sector Uchiza) que retrasan el secado solar en marquesina e imponen una restricción de secado a 12 t.
-            </p>
-          </div>
+        <div className="lg:col-span-2">
+          <CommitmentCurveChart data={commitmentCurveData} deviationTons={deviationTons} />
         </div>
 
         {/* Right Col: Actionable Early Warning Alerts */}
