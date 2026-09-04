@@ -38,8 +38,8 @@ import {
 
 export default function App() {
   // Navigation & Role State (Sección 21.1)
-  const [activeRole, setActiveRole] = useState('buyer'); // 'coop' | 'buyer'
-  const [activeTab, setActiveTab] = useState('buyer-dashboard');
+  const [activeRole, setActiveRole] = useState('coop'); // 'coop' | 'buyer'
+  const [activeTab, setActiveTab] = useState('coop-dashboard');
 
   // Application Data State
   const [cooperatives, setCooperatives] = useState(INITIAL_COOPERATIVES);
@@ -372,6 +372,7 @@ export default function App() {
                   setActiveOfferForTracking(off);
                   setIsOrderTrackingOpen(true);
                 }}
+                onOpenJointCoverage={() => setIsJointCoverageOpen(true)}
               />
             )}
 
@@ -385,6 +386,25 @@ export default function App() {
 
             {activeTab === 'senamhi-weather' && (
               <SenamhiWeatherView />
+            )}
+
+            {activeTab === 'coop-profile' && selectedCoop && (
+              <CoopProfileView 
+                cooperative={selectedCoop}
+                lots={lots}
+                commitmentCurveData={commitmentCurve}
+                onBack={() => setActiveTab('coop-dashboard')}
+                onOpenMakeOffer={() => setIsMakeOfferOpen(true)}
+                onOpenCommitmentReport={() => {
+                  setIsCombinedReport(false);
+                  setIsCommitmentReportOpen(true);
+                }}
+                onOpenConfidenceModal={() => setIsConfidenceModalOpen(true)}
+                onOpenLotTraceability={(lot) => {
+                  setActiveLotForTraceability(lot);
+                  setIsLotTraceabilityOpen(true);
+                }}
+              />
             )}
 
             {activeTab === 'campaign-history' && (

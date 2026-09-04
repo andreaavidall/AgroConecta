@@ -17,7 +17,8 @@ import {
   Bot,
   ChevronDown,
   Wrench,
-  HelpCircle
+  HelpCircle,
+  UserCheck
 } from 'lucide-react';
 
 export default function Header({
@@ -36,14 +37,15 @@ export default function Header({
 }) {
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
 
-  // Navegación con Terminología Clara y Retiro de ICE NY de la Barra Principal (Puntos 11 & 13)
+  // Navegación adaptada incluyendo Perfil Organización
   const coopNavTabs = [
     { id: 'coop-dashboard', label: 'Inicio & Tareas', icon: Building2 },
     { id: 'lots-management', label: 'Lotes & Proceso', icon: Layers },
     { id: 'coop-offers', label: 'Pedidos & Capacidad', icon: ShoppingBag, badge: activeOffersCount },
     { id: 'mass-balance', label: 'Control de Mermas', icon: Scale },
     { id: 'certificates', label: 'Certificaciones', icon: Award },
-    { id: 'senamhi-weather', label: 'Informes Climáticos', icon: CloudSun }
+    { id: 'senamhi-weather', label: 'Informes Climáticos', icon: CloudSun },
+    { id: 'coop-profile', label: 'Perfil Organización', icon: UserCheck }
   ];
 
   const buyerNavTabs = [
@@ -89,10 +91,14 @@ export default function Header({
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 bg-emerald-900/90 px-3 py-1 rounded-full border border-emerald-600/50 text-emerald-100 shadow-2xs">
-                  <Building2 className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="font-bold text-[11px]">{selectedCoopName}</span>
-                </div>
+                <button 
+                  onClick={() => setActiveTab('coop-profile')}
+                  className="flex items-center gap-1.5 bg-emerald-900/90 hover:bg-emerald-800 px-3 py-1 rounded-full border border-emerald-600/50 text-emerald-100 transition shadow-2xs group cursor-pointer"
+                  title="Ver Perfil de la Organización"
+                >
+                  <Building2 className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-[11px] group-hover:underline">{selectedCoopName}</span>
+                </button>
                 <div className="hidden md:flex items-center gap-1 bg-emerald-950/60 px-2.5 py-1 rounded-md text-emerald-300 text-[11px] border border-emerald-800/40">
                   <Calendar className="w-3 h-3 text-emerald-400" />
                   <span>Campaña 2026</span>
@@ -138,6 +144,16 @@ export default function Header({
                     >
                       <Sparkles className="w-4 h-4 text-[#237A57]" />
                       <span>Configuración Guiada</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsToolsDropdownOpen(false);
+                        setActiveTab('coop-profile');
+                      }}
+                      className="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2 font-medium text-slate-700"
+                    >
+                      <UserCheck className="w-4 h-4 text-[#237A57]" />
+                      <span>Perfil de Organización</span>
                     </button>
                     <button
                       onClick={() => {
