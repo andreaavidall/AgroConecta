@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Scale, Info, DollarSign, RefreshCcw, ShieldCheck, ExternalLink } from 'lucide-react';
+import { TrendingUp, Scale, Info, DollarSign, RefreshCcw, ShieldCheck } from 'lucide-react';
 import { ICE_NY_COCOA_MARKET } from '../data/mockData';
 
 export default function MarketPricesView() {
@@ -11,24 +11,24 @@ export default function MarketPricesView() {
 
   const nyBaseUsdKg = ICE_NY_COCOA_MARKET.currentPriceUsdKg; // 8.42 USD / kg
 
-  // Cálculo del Precio Comercial Estimado y Margen Productor (Sección 15)
-  const estimatedFobUsdKg = nyBaseUsdKg + organicPremium + ftPremium - processingCost - logisticsCost;
-  const estimatedFobPenKg = estimatedFobUsdKg * exchangeRate;
-  const estimatedFobUsdTon = estimatedFobUsdKg * 1000;
+  // Cálculo del Precio FOB Callao y Precio Estimado al Productor en Finca (Punto 11 Corregido)
+  const estimatedFobUsdKg = nyBaseUsdKg + organicPremium + ftPremium - processingCost - logisticsCost; // 8.52 USD/kg
+  const estimatedProducerPriceUsdKg = estimatedFobUsdKg * 0.65; // ~5.54 USD/kg al productor
+  const estimatedProducerPricePenKg = estimatedProducerPriceUsdKg * exchangeRate; // ~20.77 S/ / kg
 
   return (
     <div className="space-y-6 pb-12">
       
-      {/* Header */}
+      {/* Header (Punto 11 Corregido) */}
       <div className="bg-[#174C3C] text-white p-6 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-emerald-900/40">
         <div>
           <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
             <TrendingUp className="w-4 h-4 text-amber-300" />
-            <span>Mercado Internacional & Precios Referenciales</span>
+            <span>Referencia Comercial Simulada</span>
           </div>
-          <h1 className="text-2xl font-black">Cotizaciones ICE Futures NY & Simulador de Margen</h1>
+          <h1 className="text-2xl font-black">Precios Referenciales & Simulador de Margen</h1>
           <p className="text-xs text-emerald-200 mt-1 max-w-xl">
-            Calcula el precio comercial estimado al productor partiendo de la referencia internacional y deduciendo primas y costos reales de exportación.
+            Diferencia el precio FOB Callao para exportación del precio estimado liquidado al productor en finca.
           </p>
         </div>
 
@@ -41,30 +41,25 @@ export default function MarketPricesView() {
         </div>
       </div>
 
-      {/* Pricing Formula Explanation */}
+      {/* Explanation Banner (Punto 11 Corregido: Separar Precio Productor de FOB Callao) */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
         <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
           <Info className="w-4 h-4 text-[#237A57]" />
-          Fórmula del Precio Comercial Estimado (Sección 15)
+          Diferencia entre Precio FOB Exportación y Precio al Productor
         </h3>
 
-        <div className="bg-[#F6F8F5] p-4 rounded-xl border border-slate-200 font-mono text-xs text-slate-800 space-y-1">
-          <p className="font-bold text-[#174C3C]">
-            precio_comercial_estimado = precio_internacional + primas - costos_procesamiento - costos_logística
-          </p>
-          <p className="text-slate-500 text-[11px]">
-            * AgroConecta no utiliza el precio de bolsa bruto como precio directo al productor; calcula la deducibilidad logística.
-          </p>
-        </div>
+        <p className="text-xs text-slate-600 leading-relaxed">
+          El precio de bolsa internacional no representa el pago directo en finca. El precio ofrecido al socio deduce costos de acopio, fermentación, secado, fletes locales y comisiones operativas de la cooperativa.
+        </p>
       </div>
 
       {/* Pricing Simulator Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* Left: Interactive Variables Input */}
+        {/* Left: Input Variables */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
           <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2">
-            Simulador de Primas & Costos Operativos
+            Simulador de Primas & Costos Deductibles
           </h3>
 
           <div className="space-y-3 text-xs">
@@ -102,7 +97,7 @@ export default function MarketPricesView() {
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">Costos de Procesamiento & Fermentación (USD / kg)</label>
+              <label className="block font-bold text-slate-700 mb-1">Costos Procesamiento & Mermas (USD / kg)</label>
               <input
                 type="number"
                 step="0.05"
@@ -113,7 +108,7 @@ export default function MarketPricesView() {
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">Flete & Documentos de Exportación (USD / kg)</label>
+              <label className="block font-bold text-slate-700 mb-1">Flete & Exportación FOB (USD / kg)</label>
               <input
                 type="number"
                 step="0.05"
@@ -125,33 +120,33 @@ export default function MarketPricesView() {
           </div>
         </div>
 
-        {/* Right: Calculated Net Margin Results */}
+        {/* Right: Explicit Separation of FOB vs Producer Price (Punto 11 Corregido) */}
         <div className="bg-[#174C3C] text-white p-6 rounded-2xl shadow-xl flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <h3 className="text-base font-bold text-amber-300 border-b border-emerald-800 pb-2">
-              Resultado Comercial Estimado (FOB Callao)
+              Desglose Comercial Comparativo
             </h3>
 
             <div className="space-y-3">
               <div className="bg-emerald-950/70 p-3.5 rounded-xl border border-emerald-700/50 flex justify-between items-center">
-                <span className="text-xs text-emerald-200">Precio Sugerido (USD / kg):</span>
-                <span className="text-xl font-black text-amber-300">US$ {estimatedFobUsdKg.toFixed(2)}</span>
+                <span className="text-xs text-emerald-200">1. Precio FOB Callao (Exportación):</span>
+                <span className="text-xl font-black text-amber-300">US$ {estimatedFobUsdKg.toFixed(2)} / kg</span>
               </div>
 
               <div className="bg-emerald-950/70 p-3.5 rounded-xl border border-emerald-700/50 flex justify-between items-center">
-                <span className="text-xs text-emerald-200">Precio Sugerido (S/ / kg):</span>
-                <span className="text-xl font-black text-white">S/ {estimatedFobPenKg.toFixed(2)}</span>
+                <span className="text-xs text-emerald-200">2. Precio Estimado al Productor (USD):</span>
+                <span className="text-xl font-black text-white">US$ {estimatedProducerPriceUsdKg.toFixed(2)} / kg</span>
               </div>
 
               <div className="bg-emerald-950/70 p-3.5 rounded-xl border border-emerald-700/50 flex justify-between items-center">
-                <span className="text-xs text-emerald-200">Valor por Tonelada (FOB):</span>
-                <span className="text-xl font-black text-amber-300">US$ {estimatedFobUsdTon.toLocaleString()}</span>
+                <span className="text-xs text-emerald-200">3. Liquidación Estimada al Productor (S/):</span>
+                <span className="text-xl font-black text-amber-300">S/ {estimatedProducerPricePenKg.toFixed(2)} / kg</span>
               </div>
             </div>
           </div>
 
           <div className="text-[11px] text-emerald-300 italic border-t border-emerald-800 pt-3">
-            Aviso: Datos de mercado provistos en Modo Demostración Piloto. No constituye asesoría financiera oficial.
+            Dato simulado para demostración. No constituye oferta formal binding.
           </div>
         </div>
 

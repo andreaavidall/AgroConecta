@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Building2, 
   PlusCircle, 
@@ -14,9 +14,13 @@ import {
   ShieldCheck, 
   Sparkles,
   TrendingDown,
-  ChevronRight
+  ChevronRight,
+  UserCheck,
+  Wrench,
+  FileText
 } from 'lucide-react';
 import CommitmentCurveChart from '../components/CommitmentCurveChart';
+import { UNIFIED_ORDER_METRICS } from '../data/mockData';
 
 export default function CoopPanelDashboard({
   cooperative,
@@ -30,76 +34,56 @@ export default function CoopPanelDashboard({
   onOpenExcelImport,
   onAcceptOffer
 }) {
+  const [activeRoleFilter, setActiveRoleFilter] = useState('all'); // 'all' | 'acopiador' | 'planta' | 'comercial' | 'admin'
+
   const coopName = cooperative?.name || "Cooperativa Valle Verde";
 
-  // Desglose de Stock Físico (ATP / CTP)
-  const stockAptoTons = (cooperative?.stockAptoKg || 5000) / 1000;
-  const acopioProyectadoTons = (cooperative?.acopioProyectadoKg || 15000) / 1000;
-  const deviationTons = (cooperative?.deviationKg || -4900) / 1000;
+  // Cifras Unificadas Auditoría (Puntos 2 & 13)
+  const availableTodayTons = UNIFIED_ORDER_METRICS.availableTodayTons; // 4.0 t (ATP)
+  const probableDateTons = UNIFIED_ORDER_METRICS.probableDateTons;    // 12.0 t (CTP)
+  const deviationTons = (cooperative?.deviationKg || -4900) / 1000;   // -4.9 t
 
-  // 6 Tareas Frecuentes del Día según Rol Operativo (Sección 21.1)
-  const dailyTasks = [
-    {
-      id: 'task-acopio',
-      title: 'Registrar una Entrega / Acopio',
-      subtitle: 'Ingresa peso bruto, tara y calidad del grano recién llegado.',
-      icon: PlusCircle,
-      badge: 'Acopiador',
-      actionLabel: 'Abrir Bot Telegram o Formulario',
-      onClick: onOpenTelegram,
-      color: 'bg-emerald-50 border-emerald-200 text-[#174C3C]'
-    },
-    {
-      id: 'task-inventario',
-      title: 'Consultar Inventario & Stock Apto',
-      subtitle: `${stockAptoTons} t de grano seco listo para despacho inmediato (ATP).`,
-      icon: Scale,
-      badge: 'Almacenero',
-      actionLabel: 'Ver Kardex & Movimientos',
-      onClick: onOpenLotManagement,
-      color: 'bg-amber-50 border-amber-200 text-amber-900'
-    },
-    {
-      id: 'task-[#174C3C]tes',
-      title: 'Crear o Continuar Lote de Proceso',
-      subtitle: 'Monitorea fermentación (cajones) y secado (marquesinas).',
-      icon: Layers,
-      badge: 'Jefe de Planta',
-      actionLabel: 'Gestión de Lotes',
-      onClick: onOpenLotManagement,
-      color: 'bg-sky-50 border-sky-200 text-sky-900'
-    },
-    {
-      id: 'task-evaluar-pedido',
-      title: 'Evaluar Pedido & Capacidad ATP/CTP',
-      subtitle: `${offers.length} cotizaciones pendientes de evaluación de brecha.`,
-      icon: ShoppingBag,
-      badge: 'Gerente Comercial',
-      actionLabel: 'Revisar Pedidos Pendientes',
-      onClick: onOpenOffersView,
-      color: 'bg-indigo-50 border-indigo-200 text-indigo-900'
-    },
-    {
-      id: 'task-alertas',
-      title: 'Resolver Alertas Pendientes',
-      subtitle: `${alerts.length} avisos operativos y meteorológicos activos.`,
-      icon: AlertTriangle,
-      badge: 'Operaciones',
-      actionLabel: 'Ver Alertas Climáticas SENAMHI',
-      onClick: onOpenWeatherView,
-      color: 'bg-rose-50 border-rose-200 text-rose-900'
-    },
-    {
-      id: 'task-excel',
-      title: 'Importación Masiva Excel',
-      subtitle: 'Carga lista de socios, parcelas y stock inicial.',
-      icon: FileSpreadsheet,
-      badge: 'Administración',
-      actionLabel: 'Importar Archivo Excel',
-      onClick: onOpenExcelImport,
-      color: 'bg-emerald-50 border-emerald-200 text-emerald-900'
+  // Tareas Frecuentes Filtradas por Rol Operativo (Punto 12 Corregido)
+  const roleTasksMap = {
+    acopiador: [
+      { id: 't-1', title: 'Registrar una Entrega / Pesaje', subtitle: 'Ingresa peso bruto, tara y calidad del grano recién llegado.', icon: PlusCircle, onClick: onOpenTelegram, color: 'bg-emerald-50 border-emerald-200 text-[#174C3C]' },
+      { id: 't-2', title: 'Continuar Borrador Pendiente', subtitle: 'Revisa entregas guardadas en memoria local.', icon: FileText, onClick: onOpenTelegram, color: 'bg-sky-50 border-sky-200 text-sky-900' },
+      { id: 't-3', title: 'Consultar Últimas Recepciones', subtitle: 'Verifica los últimos 15 ingresos en centro de acopio.', icon: Scale, onClick: onOpenLotManagement, color: 'bg-amber-50 border-amber-200 text-amber-900' }
+    ],
+    planta: [
+      { id: 't-4', title: 'Lotes Activos en Proceso', subtitle: 'Monitorea cajones de fermentación y marquesinas de secado.', icon: Layers, onClick: onOpenLotManagement, color: 'bg-sky-50 border-sky-200 text-sky-900' },
+      { id: 't-5', title: 'Registrar Fermentación & Volteos', subtitle: 'Registra temperaturas y horas acumuladas (máx 108h).', icon: RefreshCw, onClick: onOpenLotManagement, color: 'bg-amber-50 border-amber-200 text-amber-900' },
+      { id: 't-6', title: 'Registrar Secado & Humedad', subtitle: 'Control diario de porcentaje de humedad hasta alcanzar 7.0%.', icon: Scale, onClick: onOpenLotManagement, color: 'bg-emerald-50 border-emerald-200 text-emerald-900' },
+      { id: 't-7', title: 'Resolver Alertas de Proceso', subtitle: 'Atiende lotes fuera de rango óptimo.', icon: AlertTriangle, onClick: onOpenWeatherView, color: 'bg-rose-50 border-rose-200 text-rose-900' }
+    ],
+    comercial: [
+      { id: 't-8', title: 'Pedidos Pendientes de Evaluación', subtitle: `${offers.length} cotizaciones recibidas con revisión de brecha.`, icon: ShoppingBag, onClick: onOpenOffersView, color: 'bg-indigo-50 border-indigo-200 text-indigo-900' },
+      { id: 't-9', title: 'Cantidad Disponible Hoy (4 t)', subtitle: 'Grano seco en almacén disponible para despacho inmediato.', icon: CheckCircle2, onClick: onOpenOffersView, color: 'bg-emerald-50 border-emerald-200 text-[#174C3C]' },
+      { id: 't-10', title: 'Cantidad Probable para la Fecha (12 t)', subtitle: 'Proyección de acopio ajustada por precipitaciones.', icon: TrendingUp, onClick: onOpenOffersView, color: 'bg-amber-50 border-amber-200 text-amber-900' },
+      { id: 't-11', title: 'Enviar Contraoferta o Fecha', subtitle: 'Responde propuestas con respaldos determinísticos.', icon: ArrowRight, onClick: onOpenOffersView, color: 'bg-slate-50 border-slate-200 text-slate-900' }
+    ],
+    admin: [
+      { id: 't-12', title: 'Configuración Inicial Guiada', subtitle: 'Ajusta datos de la organización, acopio y parámetros.', icon: Sparkles, onClick: onOpenOffersView, color: 'bg-emerald-50 border-emerald-200 text-[#174C3C]' },
+      { id: 't-13', title: 'Importación Masiva Excel', subtitle: 'Carga lista de productores socios y parcelas.', icon: FileSpreadsheet, onClick: onOpenExcelImport, color: 'bg-sky-50 border-sky-200 text-sky-900' },
+      { id: 't-14', title: 'Auditoría & Documentos', subtitle: 'Revisa vigencia de certificados orgánicos y fitosanitarios.', icon: ShieldCheck, onClick: onOpenOffersView, color: 'bg-amber-50 border-amber-200 text-amber-900' }
+    ]
+  };
+
+  const getFilteredTasks = () => {
+    if (activeRoleFilter === 'all') {
+      return [
+        roleTasksMap.acopiador[0],
+        roleTasksMap.planta[0],
+        roleTasksMap.comercial[0],
+        roleTasksMap.comercial[1],
+        roleTasksMap.planta[3],
+        roleTasksMap.admin[1]
+      ];
     }
-  ];
+    return roleTasksMap[activeRoleFilter] || [];
+  };
+
+  const displayedTasks = getFilteredTasks();
 
   return (
     <div className="space-y-6 pb-12">
@@ -113,7 +97,7 @@ export default function CoopPanelDashboard({
           </div>
           <h1 className="text-2xl font-black">{coopName}</h1>
           <p className="text-xs text-emerald-200 max-w-xl leading-relaxed">
-            Monitorea el avance de la campaña, la curva de acopio determinística y responde pedidos con capacidad verificable (ATP / CTP).
+            Monitorea el avance del acopio y responde pedidos diferenciando la <span className="font-bold text-amber-300">cantidad disponible hoy (4 t)</span> de la <span className="font-bold text-amber-300">cantidad probable para la fecha (12 t)</span>.
           </p>
         </div>
 
@@ -123,26 +107,56 @@ export default function CoopPanelDashboard({
             className="bg-[#237A57] hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-md border border-emerald-500/30"
           >
             <MessageSquareCode className="w-4 h-4 text-sky-300" />
-            <span>Simulador Telegram Campo</span>
+            <span>Simulador Bot Telegram</span>
           </button>
         </div>
-
-        {/* Decorative background glow */}
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
       </div>
 
-      {/* Main Task Grid: "¿Qué necesitas hacer hoy?" (Sección 21.1) */}
+      {/* Main Task Grid: "¿Qué necesitas hacer hoy?" filtrado por Rol (Punto 12 Corregido) */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-[#237A57]" />
             ¿Qué necesitas hacer hoy?
           </h2>
-          <span className="text-xs text-slate-500 font-medium">Selecciona tu tarea según tu rol activo</span>
+
+          {/* Role Filter Tabs (Punto 12 Corregido) */}
+          <div className="bg-slate-200/80 p-1 rounded-xl flex items-center gap-1 text-xs font-bold text-slate-700 overflow-x-auto">
+            <button
+              onClick={() => setActiveRoleFilter('all')}
+              className={`px-3 py-1 rounded-lg transition ${activeRoleFilter === 'all' ? 'bg-[#237A57] text-white' : 'hover:bg-slate-300'}`}
+            >
+              Todos los roles
+            </button>
+            <button
+              onClick={() => setActiveRoleFilter('acopiador')}
+              className={`px-3 py-1 rounded-lg transition ${activeRoleFilter === 'acopiador' ? 'bg-[#237A57] text-white' : 'hover:bg-slate-300'}`}
+            >
+              Acopiador
+            </button>
+            <button
+              onClick={() => setActiveRoleFilter('planta')}
+              className={`px-3 py-1 rounded-lg transition ${activeRoleFilter === 'planta' ? 'bg-[#237A57] text-white' : 'hover:bg-slate-300'}`}
+            >
+              Jefe de Planta
+            </button>
+            <button
+              onClick={() => setActiveRoleFilter('comercial')}
+              className={`px-3 py-1 rounded-lg transition ${activeRoleFilter === 'comercial' ? 'bg-[#237A57] text-white' : 'hover:bg-slate-300'}`}
+            >
+              Gerente Comercial
+            </button>
+            <button
+              onClick={() => setActiveRoleFilter('admin')}
+              className={`px-3 py-1 rounded-lg transition ${activeRoleFilter === 'admin' ? 'bg-[#237A57] text-white' : 'hover:bg-slate-300'}`}
+            >
+              Administrador
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {dailyTasks.map((task) => {
+          {displayedTasks.map((task) => {
             const Icon = task.icon;
             return (
               <div
@@ -155,9 +169,6 @@ export default function CoopPanelDashboard({
                     <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/80 border border-slate-200">
-                      {task.badge}
-                    </span>
                   </div>
 
                   <div>
@@ -171,7 +182,7 @@ export default function CoopPanelDashboard({
                 </div>
 
                 <div className="pt-2 border-t border-slate-900/10 flex items-center justify-between text-xs font-bold text-slate-800 group-hover:translate-x-0.5 transition-transform">
-                  <span>{task.actionLabel}</span>
+                  <span>Ejecutar tarea</span>
                   <ChevronRight className="w-4 h-4" />
                 </div>
               </div>
@@ -188,7 +199,7 @@ export default function CoopPanelDashboard({
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h3 className="font-bold text-slate-800 text-base">Curva de Acopio Campaña 2026</h3>
-              <p className="text-xs text-slate-500">Comparación entre acopio proyectado determinístico y entregas reales</p>
+              <p className="text-xs text-slate-500">Comparación entre acopio proyectado y entregas registradas</p>
             </div>
 
             <div className="flex items-center gap-2 text-xs">
@@ -199,7 +210,6 @@ export default function CoopPanelDashboard({
             </div>
           </div>
 
-          {/* Commitment Curve Chart Component */}
           <div className="h-64">
             <CommitmentCurveChart data={commitmentCurveData} />
           </div>
@@ -207,12 +217,12 @@ export default function CoopPanelDashboard({
           <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-900 flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
-              <strong>Motivo de Desviación:</strong> La Estación SENAMHI Tocache reportó 68mm de lluvia acumulada en 72h (Zona 5 Uchiza), retrasando temporalmente el secado solar en marquesinas y ajustando la capacidad CTP de la Semana 5.
+              <strong>Factor de riesgo asociado:</strong> Precipitaciones de 68mm en 72h (Sector Uchiza) que retrasan el secado solar en marquesina e imponen una restricción de secado a 12 t.
             </p>
           </div>
         </div>
 
-        {/* Right Col: Actionable Early Warning Alerts (Sección 29.1 P0-6) */}
+        {/* Right Col: Actionable Early Warning Alerts */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -220,7 +230,7 @@ export default function CoopPanelDashboard({
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
                 Alertas Operativas Activas
               </h3>
-              <span className="bg-rose-100 text-rose-800 text-[10px] font-black px-2 py-0.5 rounded-full">
+              <span className="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full">
                 {alerts.length} Alertas
               </span>
             </div>
@@ -234,7 +244,6 @@ export default function CoopPanelDashboard({
                   </div>
                   <p className="text-slate-600 text-[11px] leading-relaxed">{alt.message}</p>
                   
-                  {/* Actionable Button tailored to alert type */}
                   <button
                     onClick={onOpenWeatherView}
                     className="w-full mt-1 bg-white hover:bg-slate-100 text-slate-800 p-2 rounded-lg font-bold border border-slate-300 flex items-center justify-between transition shadow-2xs"
@@ -248,7 +257,7 @@ export default function CoopPanelDashboard({
           </div>
 
           <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-center">
-            Alertas respaldadas por telemetría SENAMHI y bitácoras de planta.
+            Información basada en registros de inventario y datos históricos.
           </div>
         </div>
 

@@ -1,80 +1,68 @@
 import React from 'react';
-import { Bot, X, Sparkles, CheckCircle, ArrowRight, BookOpen } from 'lucide-react';
+import { HelpCircle, X, Sparkles, CheckCircle, ArrowRight, BookOpen } from 'lucide-react';
 
 export default function AgroConectaAssistant({ isOpen, onClose, activeTab, activeRole, selectedCoop, onNavigate }) {
   if (!isOpen) return null;
 
-  // Explicaciones contextuales según la vista activa
+  // Guía contextual explicativa según la vista activa (Punto 13 Corregido)
   const getContextHelp = () => {
     switch (activeTab) {
       case 'coop-dashboard':
       case 'buyer-dashboard':
         return {
-          title: "Dashboard de Operaciones & Capacidad",
-          summary: "Esta pantalla resume la capacidad de entrega verificable, alertas de producción y tareas frecuentes del día.",
-          keyConcept: "ATP vs CTP: ATP es el stock seco listo en almacén. CTP incluye acopio futuro ajustado por clima y capacidad de secado.",
+          title: "Inicio & Tareas de Operaciones",
+          summary: "Esta pantalla permite seleccionar tareas específicas por rol (Acopiador, Planta, Comercial, Administrador) y revisar alertas.",
+          keyConcept: "Disponible hoy vs Probable para la fecha: 'Disponible hoy' es el grano seco listo en almacén. 'Probable para la fecha' incluye acopio en proceso ajustado por secado.",
           checklist: [
-            "Revisa las tareas recomendadas según tu rol.",
-            "Verifica la desviación de la curva de acopio (-4.9 t por lluvias).",
-            "Atiende alertas de fermentación o faltante GPS antes de confirmar pedidos."
+            "Filtra las tareas según tu rol activo.",
+            "Revisa la desviación del acopio (-4.9 t por lluvias).",
+            "Consulta las alertas meteorológicas registradas antes de responder a un comprador."
           ],
-          recommendedAction: { label: "Evaluar Capacidad de Pedido (Calculadora ATP/CTP)", tab: "coop-offers" }
+          recommendedAction: { label: "Evaluar Capacidad de Pedido", tab: "coop-offers" }
         };
       case 'marketplace':
       case 'market':
         return {
-          title: "Vitrina de Oferta & Mercado",
-          summary: "Aquí los compradores examinan la capacidad respaldada de cada cooperativa sin ver datos privados de productores.",
-          keyConcept: "Capacidad Recomendada: Calculada determinísticamente desde inventario apto y acopio ajustado por riesgo.",
+          title: "Vitrina de Ofertas Cacaoteras",
+          summary: "Permite examinar la capacidad respaldada de cada cooperativa con información comunitaria geolocalizada.",
+          keyConcept: "Capacidad Recomendada: Calculada a partir del grano seco disponible en almacén y el acopio en proceso.",
           checklist: [
-            "Filtra por certificación (Orgánico UE / Fairtrade).",
-            "Selecciona hasta 4 cooperativas para comparar matriz de riesgos.",
-            "Solicita cotización o propuesta de cobertura conjunta si requieres un volumen mayor."
+            "Filtra por certificaciones institucionales (Orgánico UE / Fairtrade).",
+            "Compara hasta 4 cooperativas en paralelo.",
+            "Solicita cotización formal o propuesta de cobertura conjunta."
           ],
           recommendedAction: { label: "Comparar Cooperativas", tab: "compare" }
         };
       case 'lots-management':
       case 'mass-balance':
         return {
-          title: "Gestión de Lotes & Balance de Masa",
-          summary: "Rastrea cada lote desde el cacao en baba hasta el grano seco embolsado, calculando mermas y rendimientos.",
-          keyConcept: "Fórmula de Rendimiento: (Kg Secos / Kg Baba) × 100. El rango óptimo en Perú es entre 45% y 52%.",
+          title: "Control de Entradas, Salidas y Mermas",
+          summary: "Rastrea cada lote desde el acopio en baba hasta el embolsado de grano seco.",
+          keyConcept: "Regla del Balance: Entrada (kg) = Salida (kg) + Merma evaporación (kg) + Saldo en proceso (kg).",
           checklist: [
-            "Verifica que ningún lote fermentando supere las 108 horas.",
-            "Revisa mermas fuera de tolerancia para evitar fugas de inventario.",
-            "Escanea el código QR de cualquier lote para ver su genealogía completa."
+            "Verifica que la fermentación no supere las 108 horas máximas.",
+            "Revisa que las salidas de lotes en proceso figuren como 'Salida estimada'.",
+            "Escanea el código QR para ver la genealogía del lote."
           ],
-          recommendedAction: { label: "Ver Balance de Masa", tab: "mass-balance" }
+          recommendedAction: { label: "Ver Control de Mermas", tab: "mass-balance" }
         };
       case 'certificates':
         return {
-          title: "Biblioteca Documental & Certificaciones",
-          summary: "Diferencia las certificaciones institucionales de la cooperativa de los documentos de despacho específicos por lote.",
-          keyConcept: "Orgánico / Fairtrade cubren la cooperativa y parcelas. El Certificado SENASA se emite por cada embarque.",
+          title: "Biblioteca Documental & SENASA",
+          summary: "Diferencia las certificaciones de la organización de los certificados fitosanitarios SENASA emitidos por embarque.",
+          keyConcept: "Orgánico / Fairtrade son permanentes. El certificado SENASA se tramita individualmente por lote a despachar.",
           checklist: [
-            "Renueva documentos con fecha de vencimiento menor a 30 días.",
-            "Vincule cada certificado fitosanitario al lote correspondiente antes de despachar."
+            "Revisa la fecha de vencimiento de las certificaciones.",
+            "Vincula el certificado fitosanitario de despacho al lote a exportar."
           ],
-          recommendedAction: { label: "Revisar Certificados Orgánicos", tab: "certificates" }
-        };
-      case 'market-prices':
-      case 'senamhi-weather':
-        return {
-          title: "Mercado ICE NY & Pronóstico SENAMHI",
-          summary: "Consulta precios internacionales de bolsa y alertas meteorológicas oficiales que impactan el acopio.",
-          keyConcept: "Diferencial de Origen: El precio final al productor suma primas orgánicas y resta costos logísticos/procesamiento.",
-          checklist: [
-            "Consulta el tipo de cambio del día (PEN / USD).",
-            "Evalúa la precipitación en Uchiza para ajustar la curva de secado."
-          ],
-          recommendedAction: { label: "Ver Alerta Climática SENAMHI", tab: "senamhi-weather" }
+          recommendedAction: { label: "Revisar Certificados", tab: "certificates" }
         };
       default:
         return {
-          title: "Asistente Virtual AgroConecta",
-          summary: "Te ayuda a entender los cálculos de capacidad, riesgo, trazabilidad y cumplimiento de oferta.",
-          keyConcept: "AgroConecta organiza información de campo para responder cuánto, cuándo y a qué precio puedes entregar.",
-          checklist: ["Selecciona una opción del menú para recibir ayuda guiada."],
+          title: "Ayuda Guiada del MVP",
+          summary: "Explicación contextual para comprender los cálculos de capacidad, riesgo y trazabilidad.",
+          keyConcept: "AgroConecta organiza información de campo para responder cuánto, cuándo y a qué precio se puede entregar.",
+          checklist: ["Selecciona una opción para guiar tu navegación."],
           recommendedAction: null
         };
     }
@@ -88,11 +76,11 @@ export default function AgroConectaAssistant({ isOpen, onClose, activeTab, activ
       <div className="bg-[#174C3C] text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-emerald-800/80 rounded-xl border border-emerald-600/40">
-            <Sparkles className="w-5 h-5 text-amber-300" />
+            <HelpCircle className="w-5 h-5 text-amber-300" />
           </div>
           <div>
-            <h3 className="font-bold text-base leading-tight">Asistente AgroConecta</h3>
-            <p className="text-xs text-emerald-200">Guía contextual explicable en tiempo real</p>
+            <h3 className="font-bold text-base leading-tight">Ayuda Guiada del MVP</h3>
+            <p className="text-xs text-emerald-200">Explicación contextual de pantalla y reglas</p>
           </div>
         </div>
         <button
@@ -128,7 +116,7 @@ export default function AgroConectaAssistant({ isOpen, onClose, activeTab, activ
         <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm space-y-2">
           <h5 className="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-[#237A57]" />
-            Acciones recomendadas en esta vista
+            Acciones guiadas en esta vista
           </h5>
           <ul className="space-y-1.5 text-xs text-slate-600">
             {context.checklist.map((item, idx) => (
@@ -156,7 +144,7 @@ export default function AgroConectaAssistant({ isOpen, onClose, activeTab, activ
 
         {/* Disclaimer */}
         <p className="text-[11px] text-slate-400 text-center italic">
-          AgroConecta organiza datos determinísticos de campo. No sustituye la auditoría física ni autoridades oficiales.
+          AgroConecta organiza evidencias y apoya la preparación documental, pero no sustituye autoridades oficiales.
         </p>
       </div>
     </div>

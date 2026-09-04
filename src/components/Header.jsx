@@ -36,22 +36,21 @@ export default function Header({
 }) {
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
 
-  // Opciones de navegación adaptadas por Rol (Sección 21.1)
+  // Navegación con Terminología Clara y Retiro de ICE NY de la Barra Principal (Puntos 11 & 13)
   const coopNavTabs = [
     { id: 'coop-dashboard', label: 'Inicio & Tareas', icon: Building2 },
     { id: 'lots-management', label: 'Lotes & Proceso', icon: Layers },
-    { id: 'coop-offers', label: 'Pedidos & ATP/CTP', icon: ShoppingBag, badge: activeOffersCount },
-    { id: 'mass-balance', label: 'Balance de Masa', icon: Scale },
+    { id: 'coop-offers', label: 'Pedidos & Capacidad', icon: ShoppingBag, badge: activeOffersCount },
+    { id: 'mass-balance', label: 'Control de Mermas', icon: Scale },
     { id: 'certificates', label: 'Certificaciones', icon: Award },
-    { id: 'senamhi-weather', label: 'Clima & Mercado', icon: CloudSun }
+    { id: 'senamhi-weather', label: 'Informes Climáticos', icon: CloudSun }
   ];
 
   const buyerNavTabs = [
     { id: 'buyer-dashboard', label: 'Resumen del Origen', icon: Building2 },
     { id: 'marketplace', label: 'Vitrina de Ofertas', icon: ShoppingBag },
-    { id: 'interactive-map', label: 'Mapa EUDR', icon: Map },
-    { id: 'buyer-offers', label: 'Mis Pedidos', icon: FileCheck2, badge: activeOffersCount },
-    { id: 'market-prices', label: 'Bolsa ICE NY', icon: TrendingUp }
+    { id: 'interactive-map', label: 'Mapa de Zonas EUDR', icon: Map },
+    { id: 'buyer-offers', label: 'Mis Pedidos', icon: FileCheck2, badge: activeOffersCount }
   ];
 
   const currentTabs = activeRole === 'coop' ? coopNavTabs : buyerNavTabs;
@@ -68,7 +67,7 @@ export default function Header({
       <div className="bg-black/25 backdrop-blur-md px-4 sm:px-8 py-2 text-xs border-b border-white/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
-          {/* Left Brand Identity & Active Organization */}
+          {/* Left Brand Identity & Active Context */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 font-black text-sm tracking-wide text-white">
               <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-amber-300 shadow-inner">
@@ -85,8 +84,8 @@ export default function Header({
             {isBuyer ? (
               <div className="flex items-center gap-1.5 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-700/40 text-emerald-200">
                 <Globe className="w-3.5 h-3.5 text-amber-300" />
-                <span className="font-semibold text-[11px] hidden sm:inline">Vitrina de Oferta Cacaotera (EUDR)</span>
-                <span className="font-semibold text-[11px] sm:hidden">Oferta EUDR</span>
+                <span className="font-semibold text-[11px] hidden sm:inline">Vitrina de Oferta Cacaotera</span>
+                <span className="font-semibold text-[11px] sm:hidden">Oferta Cacao</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -112,11 +111,11 @@ export default function Header({
                 className="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition shadow-sm border border-sky-400/30"
               >
                 <MessageSquareCode className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Bot Telegram</span>
+                <span className="hidden sm:inline">Simulación Bot</span>
               </button>
             )}
 
-            {/* Config & Tools Dropdown / Quick Launcher for Coop */}
+            {/* Config & Tools Dropdown for Coop */}
             {!isBuyer && (
               <div className="relative">
                 <button
@@ -153,12 +152,22 @@ export default function Header({
                     <button
                       onClick={() => {
                         setIsToolsDropdownOpen(false);
+                        setActiveTab('market-prices');
+                      }}
+                      className="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2 font-medium text-slate-700"
+                    >
+                      <TrendingUp className="w-4 h-4 text-emerald-700" />
+                      <span>Referencia Comercial Simulada</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsToolsDropdownOpen(false);
                         onOpenAssistant();
                       }}
                       className="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center gap-2 font-medium text-slate-700 border-t border-slate-100"
                     >
-                      <Bot className="w-4 h-4 text-[#174C3C]" />
-                      <span>Ayuda Contextual</span>
+                      <HelpCircle className="w-4 h-4 text-[#174C3C]" />
+                      <span>Ayuda Guiada del MVP</span>
                     </button>
                   </div>
                 )}
@@ -171,8 +180,8 @@ export default function Header({
                 onClick={onOpenAssistant}
                 className="bg-emerald-800/60 hover:bg-emerald-700 text-emerald-100 px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition border border-emerald-600/30"
               >
-                <Bot className="w-3.5 h-3.5 text-amber-300" />
-                <span className="hidden sm:inline">Ayuda Contextual</span>
+                <HelpCircle className="w-3.5 h-3.5 text-amber-300" />
+                <span className="hidden sm:inline">Ayuda Guiada</span>
               </button>
             )}
 
@@ -250,7 +259,7 @@ export default function Header({
           className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-black shadow-md transition transform hover:scale-[1.02] border border-amber-300/40"
         >
           <FileCheck2 className="w-4 h-4 text-slate-950" />
-          <span>Calculadora ATP/CTP (20t)</span>
+          <span>Revisión de Pedido (20t)</span>
         </button>
 
       </div>

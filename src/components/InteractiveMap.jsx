@@ -1,40 +1,54 @@
 import React, { useState } from 'react';
-import { MapPin, Eye, EyeOff, ShieldCheck, Lock, Info } from 'lucide-react';
+import { MapPin, Eye, EyeOff, ShieldCheck, Lock, Info, KeyRound } from 'lucide-react';
 
 export default function InteractiveMap({ cooperatives, onSelectCoop, userRole = 'coop' }) {
-  const [showExactCoords, setShowExactCoords] = useState(userRole === 'coop');
+  const [hasRequestedAccess, setHasRequestedAccess] = useState(false);
+
+  const handleRequestAccess = () => {
+    setHasRequestedAccess(!hasRequestedAccess);
+    if (!hasRequestedAccess) {
+      alert("🔐 Solicitud de acceso a evidencia geográfica enviada a la cooperativa para revisión de privacidad.");
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-5">
       
-      {/* Privacy Control Bar (Sección 22 & P0-11) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F6F8F5] p-3.5 rounded-xl border border-slate-200 text-xs">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-[#237A57]" />
-          <div>
+      {/* Privacy Control Bar (Punto 8 & Punto 7 Corregidos) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F6F8F5] p-4 rounded-xl border border-slate-200 text-xs">
+        <div className="flex items-start gap-2.5">
+          <ShieldCheck className="w-4 h-4 text-[#237A57] shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
             <span className="font-bold text-slate-800">
-              Filtro de Privacidad de Ubicación EUDR: {showExactCoords ? "Polígonos Exactos (Vista Interna)" : "Zonas Aproximadas (Vista Pública Comprador)"}
+              Vista Geográfica: {hasRequestedAccess ? "Evidencia Geográfica Autorizada" : "Zonas Comunales Aproximadas (Vista Pública)"}
             </span>
-            <p className="text-slate-500 text-[11px]">
-              {showExactCoords
-                ? "Mostrando coordenadas GPS reales de parcelas autorizadas para auditoría."
-                : "Las ubicaciones públicas están difuminadas por zona comunitaria para proteger la privacidad del productor."}
+            <p className="text-slate-500 text-[11px] leading-relaxed">
+              Las ubicaciones se muestran agrupadas por zona comunitaria para proteger la privacidad del productor.
             </p>
           </div>
         </div>
 
+        {/* Button change to 'Solicitar acceso a evidencia geográfica' (Punto 8) */}
         <button
-          onClick={() => setShowExactCoords(!showExactCoords)}
-          className="bg-white hover:bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg border border-slate-300 font-bold text-xs flex items-center gap-1.5 transition shadow-2xs shrink-0"
+          onClick={handleRequestAccess}
+          className="bg-white hover:bg-slate-100 text-slate-800 px-3.5 py-2 rounded-lg border border-slate-300 font-bold text-xs flex items-center gap-1.5 transition shadow-2xs shrink-0"
         >
-          {showExactCoords ? <EyeOff className="w-3.5 h-3.5 text-amber-700" /> : <Eye className="w-3.5 h-3.5 text-[#237A57]" />}
-          <span>{showExactCoords ? "Ocultar Coordenadas Exactas" : "Mostrar Polígonos Exactos"}</span>
+          <KeyRound className="w-3.5 h-3.5 text-amber-700" />
+          <span>{hasRequestedAccess ? "Ocultar Evidencia" : "Solicitar acceso a evidencia geográfica"}</span>
         </button>
       </div>
 
-      {/* Simulated Map Visual Canvas */}
+      {/* Official Legal Disclaimer (Punto 7 Corregido) */}
+      <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-xl text-xs text-amber-900 flex items-start gap-2">
+        <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <p className="leading-relaxed">
+          <strong>Aviso de Debida Diligencia:</strong> AgroConecta organiza evidencias para apoyar la preparación EUDR, pero <strong>no certifica el cumplimiento normativo oficial</strong>.
+        </p>
+      </div>
+
+      {/* Map Visual Canvas */}
       <div className="relative w-full h-80 bg-emerald-950/90 rounded-xl overflow-hidden flex items-center justify-center border border-emerald-900 shadow-inner">
-        {/* Map Background Grid Simulation */}
+        {/* Map Grid Simulation */}
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#237A57_1px,transparent_1px)] [background-size:16px_16px]" />
 
         {/* Map Markers */}
@@ -51,7 +65,7 @@ export default function InteractiveMap({ cooperatives, onSelectCoop, userRole = 
                   {coop.province}
                 </span>
                 <span className="bg-emerald-800 text-emerald-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                  {coop.eudrStatus}
+                  {coop.georeferencedStatus || "Parcelas geolocalizadas: 91%"}
                 </span>
               </div>
 
@@ -60,10 +74,10 @@ export default function InteractiveMap({ cooperatives, onSelectCoop, userRole = 
               </h4>
 
               <div className="text-[11px] text-slate-300 font-mono">
-                {showExactCoords ? (
-                  <span className="text-emerald-300 font-bold">GPS: {coop.coordinates.lat}, {coop.coordinates.lng}</span>
+                {hasRequestedAccess ? (
+                  <span className="text-emerald-300 font-bold">GPS Autorizado: {coop.coordinates.lat}, {coop.coordinates.lng}</span>
                 ) : (
-                  <span className="text-slate-400">Comunidad: {coop.region} (Aproximado)</span>
+                  <span className="text-slate-400">Zona: {coop.region} (Aproximado)</span>
                 )}
               </div>
             </div>
@@ -72,7 +86,7 @@ export default function InteractiveMap({ cooperatives, onSelectCoop, userRole = 
 
         {/* Legend Overlay */}
         <div className="absolute bottom-3 left-3 bg-slate-950/80 text-white px-3 py-1.5 rounded-lg text-[10px] font-mono border border-slate-700">
-          ● Capa Geográfica EUDR (San Martín / Cusco / Amazonas)
+          ● Capa Geográfica Comunitaria (San Martín / Cusco / Amazonas)
         </div>
       </div>
 
