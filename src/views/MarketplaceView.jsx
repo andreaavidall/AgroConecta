@@ -15,13 +15,15 @@ import {
   ListFilter,
   Check,
   Sparkles,
-  AlertTriangle
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 
 export default function MarketplaceView({ 
   cooperatives = [], 
   onSelectCoop, 
   onOpenMakeOffer,
+  onOpenConfidenceModal,
   selectedForCompare = [],
   onToggleCompare,
   onOpenCompareView,
@@ -222,7 +224,24 @@ export default function MarketplaceView({
 
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-gray-600 font-medium">Confianza de Entrega:</span>
-                      <span className="font-extrabold text-emerald-700">{coop.confidenceScore}%</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          {coop.confidenceScore || 85}%
+                        </span>
+                        {onOpenConfidenceModal && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenConfidenceModal(coop);
+                            }}
+                            className="bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-300 transition flex items-center gap-1 cursor-pointer"
+                            title="Ver desglose de factores de confianza (Clima, Ruta, Acopio, etc.)"
+                          >
+                            <Info className="w-3 h-3 text-amber-700" />
+                            <span>Factores</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex justify-between items-center text-xs">
@@ -333,7 +352,24 @@ export default function MarketplaceView({
                       </td>
                       <td className="p-4 font-bold text-emerald-700">{matchScore}% Match</td>
                       <td className="p-4 font-black text-[#D96B27] text-sm">{coop.capacityRange}</td>
-                      <td className="p-4 font-bold text-emerald-700">{coop.confidenceScore}% (Alta)</td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-extrabold text-emerald-700">{coop.confidenceScore || 85}%</span>
+                          {onOpenConfidenceModal && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenConfidenceModal(coop);
+                              }}
+                              className="bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-300 transition flex items-center gap-1 cursor-pointer"
+                              title="Ver desglose de factores de confianza"
+                            >
+                              <Info className="w-3 h-3 text-amber-700" />
+                              <span>Factores</span>
+                            </button>
+                          )}
+                        </div>
+                      </td>
                       <td className="p-4">{coop.variety} ({coop.fineAromaPct}%)</td>
                       <td className="p-4">
                         <span className={`font-bold ${coop.riskLevel === 'medium' ? 'text-amber-600' : 'text-emerald-700'}`}>

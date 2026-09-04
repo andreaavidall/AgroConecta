@@ -7,7 +7,8 @@ import {
   Send, 
   Sparkles,
   Layers,
-  X
+  X,
+  Info
 } from 'lucide-react';
 
 export default function CoopComparisonView({ 
@@ -15,7 +16,8 @@ export default function CoopComparisonView({
   onBackToMarketplace, 
   onOpenMakeOffer,
   onRemoveFromCompare,
-  onOpenJointReport
+  onOpenJointReport,
+  onOpenConfidenceModal
 }) {
   if (selectedCoops.length === 0) {
     return (
@@ -110,8 +112,20 @@ export default function CoopComparisonView({
               <tr>
                 <td className="p-4 font-bold bg-gray-50 text-gray-700">Score Confianza de Entrega</td>
                 {selectedCoops.map((c) => (
-                  <td key={c.id} className="p-4 font-extrabold text-emerald-700 border-r border-gray-100">
-                    {c.confidenceScore} / 100 ({c.confidenceLevelText})
+                  <td key={c.id} className="p-4 border-r border-gray-100">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-extrabold text-emerald-700">{c.confidenceScore || 85}%</span>
+                      {onOpenConfidenceModal && (
+                        <button
+                          onClick={() => onOpenConfidenceModal(c)}
+                          className="bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-300 transition flex items-center gap-1 cursor-pointer"
+                          title="Ver factores de cálculo (Clima, Ruta, Acopio, etc.)"
+                        >
+                          <Info className="w-3 h-3 text-amber-700" />
+                          <span>Factores</span>
+                        </button>
+                      )}
+                    </div>
                   </td>
                 ))}
               </tr>

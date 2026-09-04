@@ -242,6 +242,10 @@ export default function App() {
                   setIsCombinedReport(false);
                   setIsCommitmentReportOpen(true);
                 }}
+                onOpenConfidenceModal={(coop) => {
+                  if (coop) setSelectedCoop(coop);
+                  setIsConfidenceModalOpen(true);
+                }}
               />
             )}
 
@@ -255,6 +259,10 @@ export default function App() {
                 onOpenMakeOffer={(coop) => {
                   setSelectedCoop(coop);
                   setIsMakeOfferOpen(true);
+                }}
+                onOpenConfidenceModal={(coop) => {
+                  if (coop) setSelectedCoop(coop);
+                  setIsConfidenceModalOpen(true);
                 }}
                 selectedForCompare={selectedForCompare}
                 onToggleCompare={handleToggleCompare}
@@ -272,6 +280,10 @@ export default function App() {
                   setIsMakeOfferOpen(true);
                 }}
                 onRemoveFromCompare={handleRemoveFromCompare}
+                onOpenConfidenceModal={(coop) => {
+                  if (coop) setSelectedCoop(coop);
+                  setIsConfidenceModalOpen(true);
+                }}
               />
             )}
 

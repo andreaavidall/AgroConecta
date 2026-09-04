@@ -16,7 +16,8 @@ import {
   CloudRain,
   UserCheck,
   Zap,
-  DollarSign
+  DollarSign,
+  Info
 } from 'lucide-react';
 import { ICE_NY_COCOA_MARKET } from '../data/mockData';
 
@@ -25,7 +26,8 @@ export default function BuyerDashboard({
   onNavigateToMarketplace, 
   onSelectCoop,
   onOpenCommitmentReport,
-  onOpenMakeOffer
+  onOpenMakeOffer,
+  onOpenConfidenceModal
 }) {
   const recommendedCoops = cooperatives.slice(0, 3);
 
@@ -231,7 +233,24 @@ export default function BuyerDashboard({
 
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-gray-600 font-medium">Confianza de Entrega:</span>
-                      <span className="font-extrabold text-emerald-700">{coop.confidenceScore}%</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          {coop.confidenceScore || 85}%
+                        </span>
+                        {onOpenConfidenceModal && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenConfidenceModal(coop);
+                            }}
+                            className="bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-300 transition flex items-center gap-1 cursor-pointer"
+                            title="Ver factores de cálculo (Clima, Ruta, Acopio, etc.)"
+                          >
+                            <Info className="w-3 h-3 text-amber-700" />
+                            <span>Factores</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex justify-between items-center text-xs">
