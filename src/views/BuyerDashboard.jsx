@@ -47,7 +47,7 @@ export default function BuyerDashboard({
                 <span className="text-xs text-amber-200/70">Campaña Activa 2026</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">
-                Hola, Matías
+                Hola, Esteban
               </h1>
               <p className="text-xs sm:text-sm text-amber-100/80 mt-1 max-w-2xl leading-relaxed">
                 Aquí tienes la inteligencia consolidada de abastecimiento: capacidad comprometible evaluada, riesgo climático SENAMHI y recomendaciones de compra para esta semana.
