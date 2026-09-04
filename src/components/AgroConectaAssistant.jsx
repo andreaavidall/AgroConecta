@@ -28,7 +28,7 @@ export default function AgroConectaAssistant({ isOpen, onClose, activeTab, activ
           keyConcept: "Capacidad Recomendada: Calculada a partir del grano seco disponible en almacén y el acopio en proceso.",
           checklist: [
             "Filtra por certificaciones institucionales (Orgánico UE / Fairtrade).",
-            "Compara hasta 4 cooperativas en paralelo.",
+            "Compara cooperativas en paralelo.",
             "Solicita cotización formal o propuesta de cobertura conjunta."
           ],
           recommendedAction: { label: "Comparar Cooperativas", tab: "compare" }

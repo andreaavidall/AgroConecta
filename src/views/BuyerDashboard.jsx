@@ -121,7 +121,7 @@ export default function BuyerDashboard({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
           {/* Scenario 1: 25 t Single Coop */}
           <div className="bg-[#FBF9F5] p-5 rounded-2xl border border-[#EFECE6] space-y-3 hover:border-[#D96B27] transition-all">
@@ -129,7 +129,7 @@ export default function BuyerDashboard({
               <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
                 PEDIDO MEDIANO (25 t)
               </span>
-              <span className="text-xs font-black text-emerald-700">100% Cubierto</span>
+              <span className="text-xs font-black text-emerald-700">1 Cooperativa</span>
             </div>
 
             <div>
@@ -161,7 +161,7 @@ export default function BuyerDashboard({
             </div>
 
             <div>
-              <h3 className="font-extrabold text-sm text-[#1E1512]">Cobertura Conjunta Sugerida</h3>
+              <h3 className="font-extrabold text-sm text-[#1E1512]">2 Cooperativas (Cobertura Conjunta)</h3>
               <p className="text-xs text-gray-600 mt-1">
                 Valle Verde (25 t) + Bosque Andino (25 t) suman <strong>50 t</strong> manteniendo certificaciones Orgánico UE.
               </p>
@@ -174,34 +174,6 @@ export default function BuyerDashboard({
                 className="font-bold text-[#D96B27] hover:underline cursor-pointer flex items-center space-x-1"
               >
                 <span>Ver Paquete 50 t</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Scenario 3: 80 t Multi-Coop Export */}
-          <div className="bg-[#1E1512] text-white p-5 rounded-2xl border border-[#3D2D27] space-y-3 hover:border-[#D96B27] transition-all">
-            <div className="flex justify-between items-start">
-              <span className="bg-[#D96B27] text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                LOTE DE EXPORTACIÓN (80 t)
-              </span>
-              <span className="text-xs font-black text-amber-400">3 Cooperativas</span>
-            </div>
-
-            <div>
-              <h3 className="font-extrabold text-sm text-white">Consolidado Multi-Origen</h3>
-              <p className="text-xs text-amber-200/80 mt-1">
-                Bosque Andino (35 t) + Tierra Cacao (20 t) + Aroma de Selva (25 t) = <strong>80 t contratables</strong>.
-              </p>
-            </div>
-
-            <div className="text-[11px] text-amber-200/60 pt-2 border-t border-[#3D2D27] flex justify-between items-center">
-              <span>Cusco + Amazonas + Junín</span>
-              <button 
-                onClick={() => onOpenCommitmentReport(true)}
-                className="font-bold text-emerald-400 hover:underline cursor-pointer flex items-center space-x-1"
-              >
-                <span>Generar Reporte 80 t</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
