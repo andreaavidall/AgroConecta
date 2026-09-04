@@ -14,6 +14,8 @@ import {
   ShieldCheck, 
   Sparkles,
   TrendingDown,
+  TrendingUp,
+  RefreshCw,
   ChevronRight,
   UserCheck,
   Wrench,
