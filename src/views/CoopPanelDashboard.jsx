@@ -90,26 +90,48 @@ export default function CoopPanelDashboard({
   return (
     <div className="space-y-6 pb-12">
       
-      {/* Top Welcome Banner */}
-      <div className="bg-[#174C3C] text-white p-6 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-emerald-900/40 relative overflow-hidden">
-        <div className="space-y-1 relative z-10">
-          <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
-            <Building2 className="w-4 h-4 text-amber-300" />
-            <span>Panel de Gestión Operativa & Cumplimiento</span>
+      {/* Top Executive Welcome Banner */}
+      <div className="bg-gradient-to-r from-[#0D261E] via-[#164234] to-[#0B2119] text-white p-6 rounded-2xl shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-emerald-800/40 relative overflow-hidden">
+        {/* Background decorative glow */}
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="space-y-2 relative z-10 max-w-2xl">
+          <div className="flex items-center gap-2">
+            <span className="bg-emerald-500/20 text-emerald-300 text-[11px] font-extrabold px-3 py-0.5 rounded-full border border-emerald-500/30 tracking-wide uppercase flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-amber-300" />
+              Gestión Operativa & Auditoría CABA
+            </span>
+            <span className="bg-amber-400/20 text-amber-300 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-amber-400/30">
+              Campaña 2026
+            </span>
           </div>
-          <h1 className="text-2xl font-black">{coopName}</h1>
-          <p className="text-xs text-emerald-200 max-w-xl leading-relaxed">
-            Monitorea el avance del acopio y responde pedidos diferenciando la <span className="font-bold text-amber-300">cantidad disponible hoy (4 t)</span> de la <span className="font-bold text-amber-300">cantidad probable para la fecha (12 t)</span>.
+
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">{coopName}</h1>
+          <p className="text-xs text-emerald-100/90 leading-relaxed">
+            Plataforma determinística de acopio. Responde cotizaciones separando estrictamente la <span className="font-bold text-amber-300 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">Disponible Hoy: {availableTodayTons} t (ATP)</span> de la <span className="font-bold text-amber-300 bg-amber-400/10 px-1.5 py-0.5 rounded border border-amber-400/20">Probable Fecha: {probableDateTons} t (CTP)</span>.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 relative z-10">
+        {/* Right Metric Summary Chips & Bot Trigger */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 relative z-10">
+          <div className="bg-black/30 backdrop-blur-md p-3 rounded-xl border border-white/10 flex items-center gap-4 text-xs">
+            <div>
+              <span className="text-[10px] text-emerald-300/80 uppercase font-bold block">Capacidad Respaldada</span>
+              <span className="font-black text-white text-sm">16.0 t <span className="text-emerald-400 text-xs font-normal">(80%)</span></span>
+            </div>
+            <div className="h-7 w-px bg-white/15" />
+            <div>
+              <span className="text-[10px] text-amber-300/80 uppercase font-bold block">Brecha Riesgo</span>
+              <span className="font-black text-amber-300 text-sm">4.0 t <span className="text-amber-400 text-xs font-normal">(20%)</span></span>
+            </div>
+          </div>
+
           <button
             onClick={onOpenTelegram}
-            className="bg-[#237A57] hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-md border border-emerald-500/30"
+            className="bg-[#237A57] hover:bg-emerald-600 text-white px-4 py-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition shadow-md border border-emerald-400/30 whitespace-nowrap"
           >
             <MessageSquareCode className="w-4 h-4 text-sky-300" />
-            <span>Simulador Bot Telegram</span>
+            <span>Simular Bot Telegram</span>
           </button>
         </div>
       </div>
