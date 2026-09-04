@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Layers, Scale, Calendar, CheckCircle2, User, MapPin, QrCode, ArrowRight, ShieldCheck, Share2 } from 'lucide-react';
+import { X, Layers, Scale, Calendar, CheckCircle2, User, MapPin, ArrowRight, ShieldCheck, Share2 } from 'lucide-react';
 
 export default function LotTraceabilityModal({ isOpen, onClose, lot }) {
   if (!isOpen || !lot) return null;
@@ -103,15 +103,15 @@ export default function LotTraceabilityModal({ isOpen, onClose, lot }) {
             </div>
           )}
 
-          {/* Section 3: QR Code Verification Display */}
+          {/* Section 3: Digital Traceability Verification Display */}
           <div className="bg-emerald-950 text-white p-4 rounded-xl flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-[10px] text-amber-300 font-mono uppercase">Verificación Pública de Origen</span>
-              <h4 className="font-bold text-sm">Ficha Digital de Trazabilidad QR</h4>
-              <p className="text-xs text-emerald-200">Escaneable por compradores internacionales sin exponer datos privados.</p>
+              <h4 className="font-bold text-sm">Ficha Digital de Trazabilidad</h4>
+              <p className="text-xs text-emerald-200">Verificable por compradores internacionales con salvaguarda de datos privados.</p>
             </div>
-            <div className="p-2 bg-white rounded-lg">
-              <QrCode className="w-12 h-12 text-slate-900" />
+            <div className="p-2.5 bg-emerald-900 border border-emerald-700 rounded-lg">
+              <ShieldCheck className="w-8 h-8 text-amber-300" />
             </div>
           </div>
 

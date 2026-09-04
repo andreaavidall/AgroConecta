@@ -14,7 +14,7 @@ export default function OnboardingWizardModal({ isOpen, onClose, onCompleteSetup
     producersCount: 142,
     targetMoisture: 7.0,
     maxFermentationHours: 108,
-    hasTelegram: true
+    hasWhatsApp: true
   });
 
   if (!isOpen) return null;

@@ -159,7 +159,6 @@ export const INITIAL_LOTS = [
     fermentationStatus: "Correcto (96h)",
     dryingDays: 6,
     photoEvidenceUrl: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=600&q=80",
-    qrCodeId: "QR-CAC-2026-014-VALLEVERDE",
     lastUpdated: "01/09/2026 14:30",
 
     // Balance de masa matemáticamente exacto: 8500 = 4200 + 4300 + 0
@@ -202,7 +201,6 @@ export const INITIAL_LOTS = [
     fermentationStatus: "ALERTA: Excede rango óptimo (90-108h)",
     dryingDays: 0,
     photoEvidenceUrl: "https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?auto=format&fit=crop&w=600&q=80",
-    qrCodeId: "QR-CAC-2026-015-VALLEVERDE",
     lastUpdated: "01/09/2026 16:10",
 
     massBalance: {

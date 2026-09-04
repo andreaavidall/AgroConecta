@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Layers, CheckCircle2, AlertTriangle, QrCode, Search, Filter, Plus } from 'lucide-react';
+import { Layers, CheckCircle2, AlertTriangle, Search, Filter, Plus } from 'lucide-react';
 
-export default function LotsManagementView({ lots = [], onOpenLotTraceability, onOpenTelegram }) {
+export default function LotsManagementView({ lots = [], onOpenLotTraceability, onOpenWhatsApp }) {
   const [filterStage, setFilterStage] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -20,10 +20,10 @@ export default function LotsManagementView({ lots = [], onOpenLotTraceability, o
         </div>
 
         <button
-          onClick={onOpenTelegram}
-          className="bg-[#D96B27] hover:bg-[#C05A19] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md self-start sm:self-auto"
+          onClick={onOpenWhatsApp}
+          className="bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md self-start sm:self-auto"
         >
-          + Registrar Nuevo Lote (Telegram)
+          + Registrar Nuevo Lote (WhatsApp)
         </button>
       </div>
 
@@ -93,7 +93,7 @@ export default function LotsManagementView({ lots = [], onOpenLotTraceability, o
                     onClick={() => onOpenLotTraceability(lot)}
                     className="bg-[#1E1512] hover:bg-[#3D2D27] text-white px-3 py-1 rounded-lg text-[11px] font-bold cursor-pointer"
                   >
-                    Trazabilidad & QR
+                    Ver Trazabilidad
                   </button>
                 </td>
               </tr>

@@ -8,7 +8,6 @@ import {
   Award, 
   Users, 
   FileText, 
-  QrCode, 
   ArrowLeft, 
   Send,
   CloudRain,

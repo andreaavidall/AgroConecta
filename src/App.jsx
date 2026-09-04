@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
-import TelegramSimulator from './components/TelegramSimulator';
+import WhatsAppSimulator from './components/WhatsAppSimulator';
 import CommitmentReportModal from './components/CommitmentReportModal';
 import JointCoverageModal from './components/JointCoverageModal';
 import MakeOfferModal from './components/MakeOfferModal';
@@ -55,7 +55,7 @@ export default function App() {
   const [activeOfferForTracking, setActiveOfferForTracking] = useState(null);
 
   // Modals & UI Widgets Toggle State
-  const [isTelegramOpen, setIsTelegramOpen] = useState(false);
+  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
   const [isCommitmentReportOpen, setIsCommitmentReportOpen] = useState(false);
   const [isCombinedReport, setIsCombinedReport] = useState(false);
   const [isMakeOfferOpen, setIsMakeOfferOpen] = useState(false);
@@ -69,8 +69,8 @@ export default function App() {
   const [isPracticeMode, setIsPracticeMode] = useState(false);
   const [requestedOfferVolume, setRequestedOfferVolume] = useState(20);
 
-  // Telegram Real Data Updates (Idempotente - Sección 19)
-  const handleAddNewLotFromTelegram = (newLot) => {
+  // WhatsApp Real Data Updates (Idempotente - Sección 19)
+  const handleAddNewLotFromWhatsApp = (newLot) => {
     setLots(prev => [newLot, ...prev]);
 
     setCommitmentCurve(prev => prev.map(item => {
@@ -205,7 +205,7 @@ export default function App() {
         setActiveRole={setActiveRole}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenTelegram={() => setIsTelegramOpen(true)}
+        onOpenWhatsApp={() => setIsWhatsAppOpen(true)}
         onOpenCommitmentReport={(isCombined = false) => {
           setIsCombinedReport(isCombined);
           setIsCommitmentReportOpen(true);
@@ -338,7 +338,7 @@ export default function App() {
                 alerts={alerts}
                 offers={offers}
                 commitmentCurveData={commitmentCurve}
-                onOpenTelegram={() => setIsTelegramOpen(true)}
+                onOpenWhatsApp={() => setIsWhatsAppOpen(true)}
                 onOpenLotManagement={() => setActiveTab('lots-management')}
                 onOpenOffersView={() => setActiveTab('coop-offers')}
                 onOpenWeatherView={() => setActiveTab('senamhi-weather')}
@@ -354,7 +354,7 @@ export default function App() {
                   setActiveLotForTraceability(lot);
                   setIsLotTraceabilityOpen(true);
                 }}
-                onOpenTelegram={() => setIsTelegramOpen(true)}
+                onOpenWhatsApp={() => setIsWhatsAppOpen(true)}
               />
             )}
 
@@ -426,11 +426,11 @@ export default function App() {
       />
 
       {/* GLOBAL INTERACTIVE MODALS */}
-      <TelegramSimulator 
-        isOpen={isTelegramOpen}
-        onToggle={() => setIsTelegramOpen(!isTelegramOpen)}
+      <WhatsAppSimulator 
+        isOpen={isWhatsAppOpen}
+        onToggle={() => setIsWhatsAppOpen(!isWhatsAppOpen)}
         lots={lots}
-        onAddNewLot={handleAddNewLotFromTelegram}
+        onAddNewLot={handleAddNewLotFromWhatsApp}
         cooperative={cooperatives[0]}
       />
 

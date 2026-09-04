@@ -29,7 +29,7 @@ export default function CoopPanelDashboard({
   alerts,
   offers,
   commitmentCurveData,
-  onOpenTelegram,
+  onOpenWhatsApp,
   onOpenLotManagement,
   onOpenOffersView,
   onOpenWeatherView,
@@ -48,8 +48,8 @@ export default function CoopPanelDashboard({
   // Tareas Frecuentes Filtradas por Rol Operativo (Punto 12 Corregido)
   const roleTasksMap = {
     acopiador: [
-      { id: 't-1', title: 'Registrar una Entrega / Pesaje', subtitle: 'Ingresa peso bruto, tara y calidad del grano recién llegado.', icon: PlusCircle, onClick: onOpenTelegram, color: 'bg-emerald-50 border-emerald-200 text-[#174C3C]' },
-      { id: 't-2', title: 'Continuar Borrador Pendiente', subtitle: 'Revisa entregas guardadas en memoria local.', icon: FileText, onClick: onOpenTelegram, color: 'bg-sky-50 border-sky-200 text-sky-900' },
+      { id: 't-1', title: 'Registrar una Entrega / Pesaje', subtitle: 'Ingresa peso bruto, tara y calidad del grano recién llegado.', icon: PlusCircle, onClick: onOpenWhatsApp, color: 'bg-emerald-50 border-emerald-200 text-[#174C3C]' },
+      { id: 't-2', title: 'Continuar Borrador Pendiente', subtitle: 'Revisa entregas guardadas en memoria local.', icon: FileText, onClick: onOpenWhatsApp, color: 'bg-sky-50 border-sky-200 text-sky-900' },
       { id: 't-3', title: 'Consultar Últimas Recepciones', subtitle: 'Verifica los últimos 15 ingresos en centro de acopio.', icon: Scale, onClick: onOpenLotManagement, color: 'bg-amber-50 border-amber-200 text-amber-900' }
     ],
     planta: [
@@ -127,11 +127,11 @@ export default function CoopPanelDashboard({
           </div>
 
           <button
-            onClick={onOpenTelegram}
-            className="bg-[#237A57] hover:bg-emerald-600 text-white px-4 py-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition shadow-md border border-emerald-400/30 whitespace-nowrap"
+            onClick={onOpenWhatsApp}
+            className="bg-[#237A57] hover:bg-emerald-600 text-white px-4 py-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition shadow-md border border-emerald-400/30 whitespace-nowrap cursor-pointer"
           >
-            <MessageSquareCode className="w-4 h-4 text-sky-300" />
-            <span>Simular Bot Telegram</span>
+            <MessageSquareCode className="w-4 h-4 text-emerald-300" />
+            <span>Simular Bot WhatsApp</span>
           </button>
         </div>
       </div>

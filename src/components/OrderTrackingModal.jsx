@@ -8,7 +8,6 @@ import {
   ShieldCheck, 
   FileText, 
   MapPin, 
-  QrCode, 
   Anchor, 
   Sparkles,
   ArrowRight,
@@ -62,8 +61,8 @@ export default function OrderTrackingModal({ offer, onClose, onSimulateNextStage
     },
     {
       stage: 5,
-      title: "Ensacado en Yute & Etiquetado QR",
-      subtitle: "Empaque exportable de 60kg con código QR de trazabilidad.",
+      title: "Ensacado en Yute & Etiquetado de Lote",
+      subtitle: "Empaque exportable de 60kg con código de trazabilidad de lote.",
       date: "Pendiente (22 Sep 2026)",
       completed: offer.currentStepIndex >= 5,
       isCurrent: offer.currentStepIndex === 4,

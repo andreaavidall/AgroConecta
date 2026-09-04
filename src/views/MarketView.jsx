@@ -4,7 +4,7 @@ import SenamhiWeatherView from './SenamhiWeatherView';
 import { AlertCircle, TrendingUp, CloudRain, Bell, Sparkles, Globe, ShieldAlert } from 'lucide-react';
 import { EARLY_WARNING_ALERTS, ICE_NY_COCOA_MARKET } from '../data/mockData';
 
-export default function MarketView({ onOpenTelegram }) {
+export default function MarketView({ onOpenWhatsApp }) {
   const [activeMarketTab, setActiveMarketTab] = useState('prices'); // 'prices' | 'weather' | 'alerts'
 
   return (
@@ -86,7 +86,7 @@ export default function MarketView({ onOpenTelegram }) {
 
       {/* Tab Content */}
       {activeMarketTab === 'prices' && (
-        <MarketPricesView onOpenTelegram={onOpenTelegram} />
+        <MarketPricesView onOpenWhatsApp={onOpenWhatsApp} />
       )}
 
       {activeMarketTab === 'weather' && (

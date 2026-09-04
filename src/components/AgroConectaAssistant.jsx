@@ -42,7 +42,7 @@ export default function AgroConectaAssistant({ isOpen, onClose, activeTab, activ
           checklist: [
             "Verifica que la fermentación no supere las 108 horas máximas.",
             "Revisa que las salidas de lotes en proceso figuren como 'Salida estimada'.",
-            "Escanea el código QR para ver la genealogía del lote."
+            "Consulta la ficha digital para ver la genealogía del lote."
           ],
           recommendedAction: { label: "Ver Control de Mermas", tab: "mass-balance" }
         };
